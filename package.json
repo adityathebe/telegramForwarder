@@ -1,5 +1,5 @@
 {
-  "name": "johnHyun",
+  "name": "johnhyunh",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -10,6 +10,8 @@
   "author": "Aditya Thebe <contact@adityathebe.com> (https://www.adityathebe.com)",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4"
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "request": "^2.88.0"
   }
 }

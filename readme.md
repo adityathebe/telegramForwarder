@@ -7,18 +7,30 @@
 - username (string)
 - ref_code (string)
 - premium (Boolean)
+- ref_by (string)
+
 
 ### 2. Redirections
 
-- owner
-- source
-- destination
+- id (int)
+- owner (string)
+- source (string)
+- destination (string)
+
+
+### 3. Filters
+
+- id
+- redirection_id
+- name
+- state
 
 # Features
 
 ## Free
 
 1. /add -- Adding redirections allows you to setup a automatic routing of messages from any telegram channels to your own telegram channels
+  10 active redirections
 2. /activate -- Activate a redirection from your list. *Bot does automatic forwarding of messages only for active redirections*
 3. /deactivate -- deactivates a redirection from your list.  Bot does not do automatic forwarding of messages for inactive re-directions
 4. /list -- get list of redirections with their corresponding redirection IDs
@@ -49,14 +61,11 @@
 3. Enable Transformation
   *Purpose*: Replace particular words in messages with your own words.  Remove particular words or phrases in messages
 4. Setup redirections from/to bots, groups, or people each direction 
-5. The FREE version only offers up to 10 active redirections on your list.
-  I would like the ability for PAID subscribers to buy package of 50 additional redirections.
+5. The FREE version only offers up to **10 active redirections** on your list.
+  I would like the ability for PAID subscribers to buy package of **50 additional redirections**.
   Admin has the ability to specify any # of redirections.
   Limit up to 100,000 redirections.
   No limit – unlimited would be great to have as well.
-  *Purpose*: You want to have more than 10 active redirection on your list.  
-    The number of messages, passing through your redirections, is unlimited anyways (for both free and paid redirections).
-    So a single source (Channel) -> Bot counts as 1 redirection.  Or Bot -> Bot is another re-direction.
 
 
 # WORKFLOW
@@ -70,3 +79,22 @@
   * Example#1: if message contains the keyword/phrase: “Plan: Platinum” -> Channel #1, Bot#1 or user#1.
   * Example#2: if message contains the keyword/phrase: “Plan: Gold” -> Channel#2, Bot#2 or user#2.
   * Example#3: if message contains the keyword/phrase: “Plan: Silver” -> Channel#3, Bot#3 or user#3.
+
+
+# Filters (/filter)
+
+Command format:
+
+```/filter FILTER_NAME REDIRECTION_ID STATE```
+
+**Available filters**:
+
+- photos
+- documents
+- audios
+- stickers
+- videos
+- links
+- hashtags
+- contains
+- notContains
