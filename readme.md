@@ -1,12 +1,18 @@
 # Database
 
-1. User
+### 1. User
 
 - name (string)
 - chat_id (string)
 - username (string)
 - ref_code (string)
 - premium (Boolean)
+
+### 2. Redirections
+
+- owner
+- source
+- destination
 
 # Features
 
