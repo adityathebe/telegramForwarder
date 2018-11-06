@@ -2,26 +2,25 @@
 
 ### 1. User
 
-- name (string)
+- id* (int)
 - chat_id (string)
 - username (string)
 - ref_code (string)
-- premium (Boolean)
 - ref_by (string)
-
+- premium (Boolean)
 
 ### 2. Redirections
 
-- id (int)
+- id* (int)
 - owner (string)
 - source (string)
 - destination (string)
-
+- active (boolean);
 
 ### 3. Filters
 
-- id
-- redirection_id
+- id* (int)
+- red_id
 - name
 - state
 
