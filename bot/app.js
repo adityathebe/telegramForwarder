@@ -11,6 +11,7 @@ const SERVER_CONFIG = require('./config/server');
 const TELEGRAM_CONFIG = require('./config/telegram');
 const TelegramBot = require('./services/telegram');
 const bot = new TelegramBot(TELEGRAM_CONFIG.apiKey, TELEGRAM_CONFIG.username);
+bot.setWebhook(TELEGRAM_CONFIG.webhookUrl);
 module.exports = bot;
 if (require.main !== module) return;
 

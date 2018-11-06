@@ -15,15 +15,15 @@ app = Flask(__name__)
 def joinChannel(channel):
   try:
     result = client(JoinChannelRequest(channel))
-    return result
+    return jsonify(result.chats[0].to_dict())
   except ValueError as valErr:
-    return valErr
+    return jsonify({'error': str(valErr)})
+
 
 @app.route('/joinchannel')
 def home():
   channel = request.args.get('channel')
   print('[/joinchannel] :: Channel Name {}'.format(channel))
-
   return joinChannel(channel)
 
 

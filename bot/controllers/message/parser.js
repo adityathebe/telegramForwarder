@@ -19,7 +19,7 @@ const parseCommandAdd = (message) => {
 
 const parseCommandRemove = (message) => {
   const msgArr = message.trim().split(' ');
-  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameters');
+  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter <redirection id>');
   return { redirectionId: msgArr[1] }
 }
 
@@ -31,13 +31,13 @@ const parseCommandList = (message) => {
 
 const parseCommandActivate = (message) => {
   const msgArr = message.trim().split(' ');
-  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter');
+  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter <redirection id>');
   return { redirectionId: msgArr[1] }
 }
 
 const parseCommandDeactivate = (message) => {
   const msgArr = message.trim().split(' ');
-  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter');
+  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter <redirection id>');
   return { redirectionId: msgArr[1] }
 }
 
@@ -57,20 +57,13 @@ const parseCommandFilter = (message) => {
   const filterState = msgArr[3];
 
   // Should be valid filter
-  if (validFilters.indexOf(filterName) < 0 ) return commandError(msgArr[0], 'Invalid Filter Name');
+  if (validFilters.indexOf(filterName) < 0) return commandError(msgArr[0], 'Invalid Filter Name');
 
 
 
 }
 
-const hashMap = {
-  '/add': parseCommandAdd,
-  '/remove': parseCommandRemove,
-  '/list': parseCommandList,
-  '/activate': parseCommandActivate,
-  '/deactivate': parseCommandDeactivate,
-  '/filter': parseCommandFilter,
-}
+
 
 class MessageParser {
 
@@ -82,6 +75,17 @@ class MessageParser {
   static isValidCommand(message) {
     const firstWord = message.trim().split(' ')[0];
     return validCommands.indexOf(firstWord) >= 0;
+  }
+
+  static hashMap() {
+    return {
+      '/add': parseCommandAdd,
+      '/remove': parseCommandRemove,
+      '/list': parseCommandList,
+      '/activate': parseCommandActivate,
+      '/deactivate': parseCommandDeactivate,
+      '/filter': parseCommandFilter,
+    }
   }
 
   /**
@@ -96,22 +100,26 @@ class MessageParser {
 
 }
 
-let message = '/list ';
-const isValid = MessageParser.isValidCommand(message);
-if (isValid) {
-  const command = MessageParser.getCommand(message);
-  const parser = hashMap[command];
-  const response = parser(message);
+module.exports = MessageParser;
 
-  if (response.error) {
-    return console.log(response)
-  }
+if (require.main === module) {
+  let message = '/list ';
+  const isValid = MessageParser.isValidCommand(message);
+  if (isValid) {
+    const command = MessageParser.getCommand(message);
+    const parser = hashMap[command];
+    const response = parser(message);
 
-  if (command === '/add') {
-    console.log(`Source: ${response.source} && Destination: ${response.destination}`)
-  }
+    if (response.error) {
+      return console.log(response)
+    }
 
-  else if (command === '/remove') {
-    console.log(`Redirection ID: ${response.redirectionId}`)
+    if (command === '/add') {
+      console.log(`Source: ${response.source} && Destination: ${response.destination}`)
+    }
+
+    else if (command === '/remove') {
+      console.log(`Redirection ID: ${response.redirectionId}`)
+    }
   }
 }
