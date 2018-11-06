@@ -1,10 +1,11 @@
+import sys
+sys.path.append("..")
 from flask import Flask, request, jsonify
 from telethon import TelegramClient, events, sync
 from telethon.tl.functions.channels import JoinChannelRequest
+from config.main import api_id, api_hash
 
 # Start Telegram Client
-api_id = 601228
-api_hash = '9fc04c4cb1b667dd574f734c4b9d2a5e'
 client = TelegramClient('../session_name.session', api_id, api_hash)
 client.start()
 
