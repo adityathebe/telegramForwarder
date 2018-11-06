@@ -1,13 +1,14 @@
 const mysql = require('mysql');
+const DB_CONFIG = require('../config/database');
 
 class Database {
 
   constructor() {
     this.connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: 'Secret123!',
-      database: 'telegram'
+      host: DB_CONFIG.host,
+      user: DB_CONFIG.user,
+      password: DB_CONFIG.password,
+      database: DB_CONFIG.database,
     });
 
     this.connection.connect(function (err, data) {
@@ -120,7 +121,6 @@ class Database {
   /////////////
   // FILTERS //
   /////////////
-
 
   /**
    * @param {Number} redirectionId 
