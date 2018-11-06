@@ -35,7 +35,7 @@ class Database {
 
   saveUser(chatId, username, refCode) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO users (chat_id, username, ref_code) VALUES ("${chatId}", "${username}", "${refCode}");`;
+      const sql = `INSERT INTO users (chat_id, username, ref_code) VALUES ("${chatId}", "${username}", "${refCode}") ON DUPLICATE KEY UPDATE chat_id=chat_id;`;
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -46,7 +46,7 @@ class Database {
   changeUserQuota(userId, shouldIncrease) {
     return new Promise((resolve, reject) => {
       const change = shouldIncrease ? 1 : -1;
-      const sql = `UPDATE users SET quota = quota + ${change} WHERE id = ${userId}`;
+      const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ${userId}`;
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -56,7 +56,7 @@ class Database {
 
   getUserQuota(userId) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT quota FROM users WHERE id = "${userId}"`;
+      const sql = `SELECT quota FROM users WHERE chat_id = "${userId}"`;
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         if (results.length === 0) return reject(new Error('User does not exist'));
@@ -69,9 +69,10 @@ class Database {
   // REDIRECTIONS //
   //////////////////
   
-  getAllRedirections() {
+  getRedirections(userId) {
     return new Promise((resolve, reject) => {
-      this.connection.query('SELECT * FROM redirections', (error, results) => {
+      const sql = `SELECT * FROM redirections WHERE owner = ${userId}`;
+      this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });

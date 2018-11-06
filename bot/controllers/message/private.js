@@ -17,7 +17,10 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   if (message === '/start') {
     let reply = 'Welcome to MultiFeed Bot! 🔥\n\n';
     reply += 'Send /help to get usage instructions';
-    return bot.send_message(sender, reply).catch(err => console.log(err));
+    bot.send_message(sender, reply).catch(err => console.log(err));
+
+    // Store User to Database
+    return db.saveUser(sender, username, Math.random() * 1000);
   }
 
   if (message === '/help') {
@@ -42,17 +45,41 @@ const handlePrivateMessage = async (sender, messageEvent) => {
 
   if (response.error) {
     const reply = `Error in command : ${response.command}\n\n**${response.error}**`;
-    return bot.send_message(sender, reply, 'markdown')
+    return bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
   }
 
   if (command === '/add') {
-    const addRedirectionResponse = await addRedirection(response.source, response.destination);
-    bot.send_message(sender, `Source: ${response.source} && Destination: ${response.destination}`);
+    try {
+      const addRedirectionResponse = await addRedirection(sender, response.source, response.destination);
+      bot.send_message(sender, `New Redirection added with id ${addRedirectionResponse.dbResponse.insertId}`).catch(err => console.log(err));
+    } catch (err) {
+      bot.send_message(sender, err).catch(err => console.log(err));;
+    }
   }
 
   else if (command === '/remove') {
     const removeRedirectionResponse = await removeRedirection(sender, response.redirectionId);
-    bot.send_message(sender, `Redirection ID: ${response.redirectionId}`);
+    bot.send_message(sender, `Redirection ID: ${removeRedirectionResponse.redirectionId}`).catch(err => console.log(err));
+  }
+
+  else if (command === '/list') {
+    try {
+      const redirections = await db.getRedirections(sender);
+      if (redirections.length === 0) {
+        return bot.send_message(sender, 'You have no redirections').catch(err => console.log(err));
+      }
+      
+      let response = '';
+      redirections.forEach((redirection) => {
+        let state = redirection.active == 1 ? "ON ✔" : "OFF ✖";
+        response += `${redirection.source} => ${redirection.destination} [[ ${state} ]] \n`;
+      });
+      bot.send_message(sender, response).catch(err => console.log(err));
+    
+    } catch (err) {
+      console.log(err);
+      bot.send_message(sender, err);
+    }
   }
 }
 

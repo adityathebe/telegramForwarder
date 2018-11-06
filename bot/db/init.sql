@@ -1,12 +1,11 @@
 CREATE TABLE `users` (
-	`id` INT NOT NULL AUTO_INCREMENT,
+	`chat_id` VARCHAR(255),
 	`username` VARCHAR(255) UNIQUE,
-	`chat_id` VARCHAR(255) NOT NULL UNIQUE,
 	`ref_code` VARCHAR(255) NOT NULL UNIQUE,
 	`ref_by` VARCHAR(255),
 	`premium` BOOLEAN DEFAULT FALSE,
 	`quota` INT DEFAULT 0,
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`chat_id`)
 );
 
 CREATE TABLE `redirections` (
@@ -29,6 +28,6 @@ CREATE TABLE `filters` (
 
 ALTER TABLE `users` ADD CONSTRAINT `users_fk0` FOREIGN KEY (`ref_by`) REFERENCES `users`(`ref_code`) ON DELETE CASCADE;
 
-ALTER TABLE `redirections` ADD CONSTRAINT `redirections_fk0` FOREIGN KEY (`owner`) REFERENCES `users`(`id`) ON DELETE CASCADE;
+ALTER TABLE `redirections` ADD CONSTRAINT `redirections_fk0` FOREIGN KEY (`owner`) REFERENCES `users`(`chat_id`) ON DELETE CASCADE;
 
 ALTER TABLE `filters` ADD CONSTRAINT `filters_fk0` FOREIGN KEY (`red_id`) REFERENCES `redirections`(`id`) ON DELETE CASCADE;
