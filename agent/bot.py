@@ -6,15 +6,9 @@ from config.main import api_id, api_hash
 client = TelegramClient('session_name', api_id, api_hash)
 client.start()
 
-def joinChannel(channel):
-  try:
-    result = client(JoinChannelRequest(channel))
-    return result
-  except ValueError as valErr:
-    return valErr
-
-resp = joinChannel('gex123Channel')
+resp = client.get_entity('gexChannel').to_dict()
 print(resp)
+
 
 # @client.on(events.NewMessage)
 # async def my_event_handler(event):
