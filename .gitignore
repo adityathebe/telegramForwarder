@@ -1,1 +1,4 @@
-node_modules
+bot/node_modules
+bot/config
+agent/session_name.session
+agent/config
