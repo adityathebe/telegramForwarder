@@ -1,2 +1,2 @@
 Telethon-sync==1.1.1
-requests==2.19.1
+requests==2.20.0
