@@ -15,6 +15,13 @@ const checkSourcePattern = (entity) => {
   return { error: 'Invalid format' };
 }
 
+
+/**
+ * Adds a redirection
+ * @param {String} sender Chat id of the owner
+ * @param {String} source Username / Link of Source
+ * @param {String} destination Username / Link of Destination
+ */
 const addRedirection = (sender, source, destination) => {
 
   return new Promise(async (resolve, reject) => {
@@ -33,16 +40,22 @@ const addRedirection = (sender, source, destination) => {
       // Get Entities ///////////////////////
       // If not joinable, will throw Error //
       ///////////////////////////////////////
-
       let sourceEntity = await ForwardAgent.getEntity(source);
       let destinationEntity = await ForwardAgent.getEntity(destination);
 
       //////////////////////////
       // Join agent to source //
       //////////////////////////
-
       let joinSrcRequestResponse = null;
       if (sourceType.username) {
+
+        // If user or bot throw error
+        if (sourceEntity.entity) {
+          if (sourceEntity.entity.type === 'user') {
+            throw new Error('Cannot redirect to or from bot/user');
+          }
+        }
+
         joinSrcRequestResponse = await ForwardAgent.joinPublicEntity(sourceType.username);
       } else if (sourceType.hash) {
         joinSrcRequestResponse = await ForwardAgent.joinPrivateEntity(sourceType.hash);
@@ -52,9 +65,16 @@ const addRedirection = (sender, source, destination) => {
       ///////////////////////////////
       // Join agent to destination //
       ///////////////////////////////
-
       let joinDestRequestResponse = null;
       if (destinationType.username) {
+
+        // If user or bot throw error
+        if (sourceEntity.entity) {
+          if (sourceEntity.entity.type === 'user') {
+            throw new Error('Cannot redirect to or from bot/user');
+          }
+        }
+
         joinDestRequestResponse = await ForwardAgent.joinPublicEntity(destinationType.username);
       } else if (destinationType.hash) {
         joinDestRequestResponse = await ForwardAgent.joinPrivateEntity(destinationType.hash);
@@ -65,7 +85,6 @@ const addRedirection = (sender, source, destination) => {
       // We cannot get entity from an invitation link before joining //
       // Now that we have joined, we can get the entity ///////////////
       /////////////////////////////////////////////////////////////////
-      
       if (sourceEntity.entity === null) {
         sourceEntity = await ForwardAgent.getEntity(source);
       }
@@ -76,14 +95,24 @@ const addRedirection = (sender, source, destination) => {
       //////////////////////////
       // No duplicate entries //
       //////////////////////////
+      const allRedirections = await database.getRedirections(sender);
+      for (const redirection of allRedirections) {
+        const source = redirection.source;
+        const destination = redirection.destination;
 
-      
-
+        if (source === sourceEntity.entity.chatId && destination === destinationEntity.entity.chatId) {
+          throw new Error(`Redirection already exists with id ${redirection.id}`)
+        }
+      }
 
       ///////////////////////
       // Store to database //
       ///////////////////////
-      const dbResponse = await database.saveRedirection(sender, sourceEntity.entity.chatId, destinationEntity.entity.chatId);
+      const srcId = sourceEntity.entity.chatId;
+      const destId = destinationEntity.entity.chatId;
+      const srcTitle = sourceEntity.entity.chatId;
+      const destTitle = destinationEntity.entity.chatId;
+      const dbResponse = await database.saveRedirection(sender, srcId, destId, srcTitle, destTitle);
 
       return resolve({ sourceEntity, destinationEntity, dbResponse });
     } catch (err) {
@@ -95,7 +124,7 @@ const addRedirection = (sender, source, destination) => {
 module.exports = addRedirection;
 
 if (require.main === module) {
-  addRedirection('451722605', '@gexChannel', '@gexReceiver')
+  addRedirection('451722605', 'https://t.me/joinchat/AAAAAEe7gLe3EYu3D_t0Yg', 'https://t.me/joinchat/AAAAAEv7_vtg3hq24P4yfA')
     .then(x => console.log(x))
     .catch(x => console.log(x))
 }

@@ -72,7 +72,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       let response = '';
       redirections.forEach((redirection) => {
         let state = redirection.active == 1 ? "ON ✔" : "OFF ✖";
-        response += `${redirection.source} => ${redirection.destination} [[ ${state} ]] \n`;
+        response += `${redirection.source_title} => ${redirection.destination_title} [[ ${state} ]] \n`;
       });
       bot.send_message(sender, response).catch(err => console.log(err));
     

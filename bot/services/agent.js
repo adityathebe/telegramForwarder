@@ -47,6 +47,7 @@ class ForwardAgent {
           return resolve({
             joined: false,
             entity: {
+              type: 'user',
               chatId: resp.id,
               title: resp.username || resp.first_name || resp.last_name,
               accessHash: resp.access_hash,
@@ -59,6 +60,7 @@ class ForwardAgent {
           return resolve({
             joined: !resp.left,
             entity: {
+              type: 'channel',
               chatId: resp.id,
               title: resp.title || resp.username,
               accessHash: resp.access_hash,
@@ -75,6 +77,7 @@ class ForwardAgent {
           return resolve({
             joined: !resp.left,
             entity: {
+              type: 'group',
               chatId: resp.id,
               title: resp.title,
               accessHash: resp.id,
