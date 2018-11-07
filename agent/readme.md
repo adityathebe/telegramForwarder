@@ -2,11 +2,11 @@
 
 Entity can be a username or an invitation link. Possible scenarios
 
-1. Invite Link :
+#### 1. Invite Link :
   - [Error] The invite hash is invalid
   - [Error] Cannot get entity from a channel (or group) that you are not part of. Join the group and retry
   - [OK] Entity Detail Dictionary
-2. Username :
+#### 2. Username :
   - [Error] No user has <entityPayload> as username
   - [OK] Entity Detail Dictionary
 
@@ -62,10 +62,21 @@ Example command
 
 #### 2. Get both the entities from the API
  
- ```
- client.get_entity(<entity>)
- ```
+```python
+client.get_entity(<entity>)
+```
 
- Need to make sure the entities are valid before we send a join request to them.
+Need to make sure the entities are valid before we send a join request to them.
 
- > **NOTE:** This check is important because a request to join an entity where the agent is already a participant of will result in an error < *telethon.errors.rpcerrorlist.UserAlreadyParticipantError* >.
+> **NOTE:** This check is important because a request to join an entity where the agent is already a participant of will result in an error < *telethon.errors.rpcerrorlist.UserAlreadyParticipantError* >.
+
+#### 3. Send Join Request
+
+```python
+# Private Entity
+client(ImportChatInviteRequest(hash))
+
+# Public Entity
+client(JoinChannelRequest(entity))
+```
+
