@@ -28,6 +28,7 @@ Entity can be a username or an invitation link. Possible scenarios
 - **ImportChatInviteRequest** : Join group / channel with invitation link
 - **JoinChannelRequest** : Join group / channel with username
 
+
 ### Procedure
 
 Example command
@@ -63,7 +64,7 @@ Example command
 #### 2. Get both the entities from the API
  
 ```python
-client.get_entity(<entity>)
+client.get_entity(entity)
 ```
 
 Need to make sure the entities are valid before we send a join request to them.

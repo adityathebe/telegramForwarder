@@ -29,6 +29,10 @@ const addRedirection = (sender, source, destination) => {
       const destinationType = checkSourcePattern(destination);
       if (destinationType.error) return reject(destinationType.error);
 
+      // Get Entities
+      const sourceEntity = await ForwardAgent.getEntity(source);
+      const destinationEntity = await ForwardAgent.getEntity(destination);
+
       // Join agent to source
       let joinSrcRequestResponse = null;
       if (sourceType.username) {
