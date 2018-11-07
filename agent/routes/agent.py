@@ -13,7 +13,6 @@ client.start()
 
 # Create the application instance
 app = Flask(__name__)
-print(dir(client))
 
 @app.route('/joinPublicEntity')
 def joinPublicEntity():

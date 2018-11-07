@@ -45,37 +45,56 @@ class ForwardAgent {
 
         if (resp._ === 'User') {
           return resolve({
-            joinable: true,
-            chatId: resp.id,
-            title: resp.username || resp.first_name || resp.last_name,
-            accessHash: resp.access_hash,
-            bot: resp.bot,
+            joined: false,
+            entity: {
+              chatId: resp.id,
+              title: resp.username || resp.first_name || resp.last_name,
+              accessHash: resp.access_hash,
+              bot: resp.bot,
+            }
           })
         }
 
         else if (resp._ === 'Channel') {
           return resolve({
-            joinable: true,
-            chatId: resp.id,
-            title: resp.title || resp.username,
-            accessHash: resp.access_hash,
-            megagroup: resp.bot,
-            left: resp.left,
+            joined: !resp.left,
+            entity: {
+              chatId: resp.id,
+              title: resp.title || resp.username,
+              accessHash: resp.access_hash,
+              megagroup: resp.megagroup,
+            }
+          })
+        }
+
+        else if (resp._ === 'Chat') {
+          if (resp.kicked) {
+            throw new Error(`Bot was kicked from ${resp.title}`);
+          }
+
+          return resolve({
+            joined: !resp.left,
+            entity: {
+              chatId: resp.id,
+              title: resp.title,
+              accessHash: resp.id,
+            }
           })
         }
 
         else if (resp.error === 'Cannot get entity from a channel (or group) that you are not part of. Join the group and retry') {
           return resolve({
-            joinable: true,
+            joined: false,
+            entity: null,
           })
         }
         
         else {
-          throw resp.error;
+          throw new Error(resp.error);
         }
 
       } catch (err) {
-        return reject(new Error(err));
+        return reject(err);
       }
     });
   }
@@ -83,3 +102,9 @@ class ForwardAgent {
 }
 
 module.exports = ForwardAgent;
+
+if (require.main === module) {
+  ForwardAgent.getEntity('https://t.me/joinchat/Guy9bQ_cwgVhZFUASazabA')
+    .then(x => console.log(x))
+    .catch(x => console.log(x))
+}

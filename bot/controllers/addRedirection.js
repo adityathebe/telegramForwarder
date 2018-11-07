@@ -21,19 +21,26 @@ const addRedirection = (sender, source, destination) => {
 
     try {
 
-      // Get Source type
+      /////////////////////////////////////////////////
+      // Validate and get Source && Destination type // 
+      /////////////////////////////////////////////////
       const sourceType = checkSourcePattern(source);
       if (sourceType.error) return reject(sourceType.error);
-      
-      // Get Destination type
       const destinationType = checkSourcePattern(destination);
       if (destinationType.error) return reject(destinationType.error);
 
-      // Get Entities
-      const sourceEntity = await ForwardAgent.getEntity(source);
-      const destinationEntity = await ForwardAgent.getEntity(destination);
+      ///////////////////////////////////////
+      // Get Entities ///////////////////////
+      // If not joinable, will throw Error //
+      ///////////////////////////////////////
 
-      // Join agent to source
+      let sourceEntity = await ForwardAgent.getEntity(source);
+      let destinationEntity = await ForwardAgent.getEntity(destination);
+
+      //////////////////////////
+      // Join agent to source //
+      //////////////////////////
+
       let joinSrcRequestResponse = null;
       if (sourceType.username) {
         joinSrcRequestResponse = await ForwardAgent.joinPublicEntity(sourceType.username);
@@ -42,7 +49,10 @@ const addRedirection = (sender, source, destination) => {
       }
       if (joinSrcRequestResponse.error) return reject(joinSrcRequestResponse.error);
 
-      // Join agent to destination
+      ///////////////////////////////
+      // Join agent to destination //
+      ///////////////////////////////
+
       let joinDestRequestResponse = null;
       if (destinationType.username) {
         joinDestRequestResponse = await ForwardAgent.joinPublicEntity(destinationType.username);
@@ -51,10 +61,31 @@ const addRedirection = (sender, source, destination) => {
       }
       if (joinDestRequestResponse.error) return reject(joinDestRequestResponse.error);
 
-      // Store to database
-      const dbResponse = await database.saveRedirection(sender, source, destination);
+      /////////////////////////////////////////////////////////////////
+      // We cannot get entity from an invitation link before joining //
+      // Now that we have joined, we can get the entity ///////////////
+      /////////////////////////////////////////////////////////////////
+      
+      if (sourceEntity.entity === null) {
+        sourceEntity = await ForwardAgent.getEntity(source);
+      }
+      if (destinationEntity.entity === null) {
+        destinationEntity = await ForwardAgent.getEntity(destination);
+      }
 
-      return resolve({ joinSrcRequestResponse, joinDestRequestResponse, dbResponse });
+      //////////////////////////
+      // No duplicate entries //
+      //////////////////////////
+
+      
+
+
+      ///////////////////////
+      // Store to database //
+      ///////////////////////
+      const dbResponse = await database.saveRedirection(sender, sourceEntity.entity.chatId, destinationEntity.entity.chatId);
+
+      return resolve({ sourceEntity, destinationEntity, dbResponse });
     } catch (err) {
       reject(err);
     }
@@ -62,3 +93,9 @@ const addRedirection = (sender, source, destination) => {
 }
 
 module.exports = addRedirection;
+
+if (require.main === module) {
+  addRedirection('451722605', '@gexChannel', '@gexReceiver')
+    .then(x => console.log(x))
+    .catch(x => console.log(x))
+}
