@@ -53,6 +53,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       const addRedirectionResponse = await addRedirection(sender, response.source, response.destination);
       bot.send_message(sender, `New Redirection added with id ${addRedirectionResponse.dbResponse.insertId}`).catch(err => console.log(err));
     } catch (err) {
+      console.log(err);
       bot.send_message(sender, err).catch(err => console.log(err));;
     }
   }

@@ -12,8 +12,18 @@ const _sendRequest = (endpoint) => {
 
 class ForwardAgent {
 
-  static async joinChannel(channelName) {
-    const endpoint = `joinchannel?channel=${channelName}`;
+  static async joinPublicEntity(entityName) {
+    const endpoint = `joinPublicEntity?entity=${entityName}`;
+    try {
+      const resp = await _sendRequest(endpoint);
+      return resp;
+    } catch (err) {
+      return err;
+    }
+  }
+
+  static async joinPrivateEntity(hash) {
+    const endpoint = `joinPrivateEntity?hash=${hash}`;
     try {
       const resp = await _sendRequest(endpoint);
       return resp;
@@ -31,7 +41,6 @@ class ForwardAgent {
       return err;
     }
   }
-
 
 }
 

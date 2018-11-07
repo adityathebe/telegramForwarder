@@ -4,6 +4,13 @@
 - Group channels into Thematic feeds
 - Clone all messages from any channel to your own channel
 
+# Issues
+
+- [x] Join private entities via invitation link
+- [ ] Circular redirection
+- [ ] Duplicate redirection
+- [ ] Multiple Agents to prevent waiting to join entities
+
 ### FAQ:
 
 -Q: How to start using the bot?  
