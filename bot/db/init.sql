@@ -13,6 +13,8 @@ CREATE TABLE `redirections` (
 	`owner` INT NOT NULL,
 	`source` VARCHAR(255) NOT NULL,
 	`destination` VARCHAR(255) NOT NULL,
+	`source_title` VARCHAR(255) NOT NULL,
+	`destination_title` VARCHAR(255) NOT NULL,
 	`active` BOOLEAN DEFAULT FALSE,
 	PRIMARY KEY (`id`)
 );

@@ -79,9 +79,10 @@ class Database {
     });
   }
 
-  saveRedirection(owner, source, destination) {
+  saveRedirection(owner, source, destination, srcTitle, destTitle) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO redirections (owner, source, destination) VALUES("${owner}", "${source}", "${destination}"); `;
+      let sql = 'INSERT INTO redirections (owner, source, destination, source_title, destination_title) ';
+      sql += `VALUES("${owner}", "${source}", "${destination}", "${srcTitle}", "${destTitle}"); `;
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -152,3 +153,8 @@ class Database {
 const db = new Database();
 
 module.exports = db;
+
+if (require.main === module) {
+  db.getRedirections('451722605')
+    .then(x => console.log(x))
+}
