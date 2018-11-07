@@ -13,7 +13,7 @@ client.start()
 
 # Create the application instance
 app = Flask(__name__)
-
+print(dir(client))
 
 @app.route('/joinPublicEntity')
 def joinPublicEntity():
@@ -22,6 +22,8 @@ def joinPublicEntity():
   try:
     result = client(JoinChannelRequest(entity))
     return jsonify(result.chats[0].to_dict())
+  except telethon.errors.rpcerrorlist.UserAlreadyParticipantError:
+    return jsonify({'succes': 'ok'})
   except Exception as exception:
     return jsonify({'error': str(exception)})
 
@@ -34,10 +36,11 @@ def joinPrivateEntity():
     result = client(ImportChatInviteRequest(hash))
     return jsonify(result.chats[0].to_dict())
   except telethon.errors.rpcerrorlist.UserAlreadyParticipantError:
-    return jsonify({ 'succes': 'ok' })
+    return jsonify({'succes': 'ok'})
   except Exception as exception:
     print(type(exception))
     return jsonify({'error': str(exception)})
+
 
 @app.route('/getentity')
 def getEntity():
