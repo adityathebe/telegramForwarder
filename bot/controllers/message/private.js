@@ -51,10 +51,11 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   if (command === '/add') {
     try {
       const addRedirectionResponse = await addRedirection(sender, response.source, response.destination);
-      bot.send_message(sender, `New Redirection added with id ${addRedirectionResponse.dbResponse.insertId}`).catch(err => console.log(err));
+      const reply = `New Redirection added with id \`${addRedirectionResponse.dbResponse.insertId}\``;
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
-      bot.send_message(sender, reply).catch(err => console.log(err));;
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));;
     }
   }
 

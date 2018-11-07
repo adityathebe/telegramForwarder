@@ -2,8 +2,7 @@
 
 ### 1. User
 
-- id* (int)
-- chat_id (string)
+- chat_id* (string)
 - username (string)
 - ref_code (string)
 - ref_by (string)
@@ -14,7 +13,9 @@
 - id* (int)
 - owner (string)
 - source (string)
+- source_title (string)
 - destination (string)
+- destination_title (string)
 - active (boolean);
 
 ### 3. Filters

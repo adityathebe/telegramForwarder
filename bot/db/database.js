@@ -24,6 +24,15 @@ class Database {
   // USERS //
   ///////////
 
+  getUser(chatId) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(`SELECT * FROM users WHERE chat_id = ${chatId}`, (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    })
+  }
+
   getAllUsers() {
     return new Promise((resolve, reject) => {
       this.connection.query('SELECT * FROM users', (error, results) => {
@@ -155,6 +164,6 @@ const db = new Database();
 module.exports = db;
 
 if (require.main === module) {
-  db.getRedirections('451722605')
+  db.changeUserQuota('451722605', true)
     .then(x => console.log(x))
 }

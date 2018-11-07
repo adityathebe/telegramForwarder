@@ -1,5 +1,6 @@
 const database = require('../db/database');
 const ForwardAgent = require('../services/agent');
+const QUOTA_LIMIT = require('../config/misc').quotaLimitFreeUser;
 
 /**
  * Verifies that the source/destination is in one of the two valid formats
@@ -15,7 +16,6 @@ const checkSourcePattern = (entity) => {
   return { error: 'Invalid format' };
 }
 
-
 /**
  * Adds a redirection
  * @param {String} sender Chat id of the owner
@@ -27,6 +27,20 @@ const addRedirection = (sender, source, destination) => {
   return new Promise(async (resolve, reject) => {
 
     try {
+
+      /////////////////
+      // Quota Check //
+      /////////////////
+      const userRecord = await database.getUser(sender);
+      if (userRecord.length === 0) {
+        throw new Error('You have not been registered. Pleas send /start')
+      }
+      const userIsPremium = userRecord[0].premium == '1' ? true: false;
+      if (!userIsPremium) {
+        if (userRecord[0].quota > QUOTA_LIMIT) {
+          throw new Error('You have reached your quota limitation');
+        }
+      }
 
       /////////////////////////////////////////////////
       // Validate and get Source && Destination type // 
@@ -52,7 +66,8 @@ const addRedirection = (sender, source, destination) => {
         // If user or bot throw error
         if (sourceEntity.entity) {
           if (sourceEntity.entity.type === 'user') {
-            throw new Error('Cannot redirect to or from bot/user');
+            const entityUserType = sourceEntity.entity.bot ? 'bot' : 'user';
+            throw new Error(`Cannot redirect to or from ${entityUserType}`);
           }
         }
 
@@ -69,9 +84,10 @@ const addRedirection = (sender, source, destination) => {
       if (destinationType.username) {
 
         // If user or bot throw error
-        if (sourceEntity.entity) {
-          if (sourceEntity.entity.type === 'user') {
-            throw new Error('Cannot redirect to or from bot/user');
+        if (destinationEntity.entity) {
+          if (destinationEntity.entity.type === 'user') {
+            const entityUserType = destinationEntity.entity.bot ? 'bot': 'user';
+            throw new Error(`Cannot redirect to or from ${entityUserType}`);
           }
         }
 
@@ -112,12 +128,14 @@ const addRedirection = (sender, source, destination) => {
 
       ///////////////////////
       // Store to database //
+      // Increase Quota    //
       ///////////////////////
       const srcId = sourceEntity.entity.chatId;
       const destId = destinationEntity.entity.chatId;
       const srcTitle = sourceEntity.entity.title;
       const destTitle = destinationEntity.entity.title;
       const dbResponse = await database.saveRedirection(sender, srcId, destId, srcTitle, destTitle);
+      await database.changeUserQuota(sender, true);
 
       return resolve({ sourceEntity, destinationEntity, dbResponse });
     } catch (err) {
