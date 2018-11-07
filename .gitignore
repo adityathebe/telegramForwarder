@@ -3,3 +3,4 @@ bot/config
 agent/session_name.session
 agent/config
 agent/session_name.session-journal
+__pycache__

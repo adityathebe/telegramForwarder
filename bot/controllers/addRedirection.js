@@ -37,7 +37,7 @@ const addRedirection = (sender, source, destination) => {
       if (destinationType.error) return reject(destinationType.error);
 
       ///////////////////////////////////////
-      // Get Entities ///////////////////////
+      // Get Entities                      //
       // If not joinable, will throw Error //
       ///////////////////////////////////////
       let sourceEntity = await ForwardAgent.getEntity(source);
@@ -83,7 +83,7 @@ const addRedirection = (sender, source, destination) => {
 
       /////////////////////////////////////////////////////////////////
       // We cannot get entity from an invitation link before joining //
-      // Now that we have joined, we can get the entity ///////////////
+      // Now that we have joined, we can get the entity              //
       /////////////////////////////////////////////////////////////////
       if (sourceEntity.entity === null) {
         sourceEntity = await ForwardAgent.getEntity(source);
@@ -93,15 +93,20 @@ const addRedirection = (sender, source, destination) => {
       }
 
       //////////////////////////
-      // No duplicate entries //
+      // No Duplicate Entries //
+      // No Circular Entries  //
       //////////////////////////
       const allRedirections = await database.getRedirections(sender);
       for (const redirection of allRedirections) {
         const source = redirection.source;
         const destination = redirection.destination;
 
-        if (source === sourceEntity.entity.chatId && destination === destinationEntity.entity.chatId) {
-          throw new Error(`Redirection already exists with id ${redirection.id}`)
+        if (source == sourceEntity.entity.chatId && destination == destinationEntity.entity.chatId) {
+          throw new Error(`Redirection already exists with id \`[${redirection.id}]\`. `)
+        }
+
+        if (source == destinationEntity.entity.chatId && destination == sourceEntity.entity.chatId ) {
+          throw new Error(`Circular redirection is not allowed \`[${redirection.id}]\`. `)
         }
       }
 
@@ -110,8 +115,8 @@ const addRedirection = (sender, source, destination) => {
       ///////////////////////
       const srcId = sourceEntity.entity.chatId;
       const destId = destinationEntity.entity.chatId;
-      const srcTitle = sourceEntity.entity.chatId;
-      const destTitle = destinationEntity.entity.chatId;
+      const srcTitle = sourceEntity.entity.title;
+      const destTitle = destinationEntity.entity.title;
       const dbResponse = await database.saveRedirection(sender, srcId, destId, srcTitle, destTitle);
 
       return resolve({ sourceEntity, destinationEntity, dbResponse });

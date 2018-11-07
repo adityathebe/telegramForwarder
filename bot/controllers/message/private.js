@@ -26,13 +26,13 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   if (message === '/help') {
     let reply = 'Typical workflow in the bot:\n\n';
     reply += '1. You have two links:\n';
-    reply += '- SOURCE - link to the channel to forward messages FROM(no admin permissions required)\n';
-    reply += '- DESTINATION - link to the channel to forward messages TO(you can add new admins there)\n\n';
-    reply += '2. You use /add command to create a new redirection from SOURCE channel to your DESTINATION channel\n\n';
-    reply += '3. You give posting permissions in DESTINATION channel TO THE ACCOUNT that was specified after successful execution of step #2\n\n';
-    reply += '4. You activate the newly created redirection using /activate command\n\n';
-    reply += 'Having all 4 steps completed, you can enjoy automatic messages forwarding from SOURCE to DESTINATION 🔥';
-    return bot.send_message(sender, reply).catch(err => console.log(err));
+    reply += '- `SOURCE` - link to the channel to forward messages FROM(no admin permissions required)\n';
+    reply += '- `DESTINATION` - link to the channel to forward messages TO(you can add new admins there)\n\n';
+    reply += '2. You use `/add` command to create a new redirection from `SOURCE` channel to your `DESTINATION` channel\n\n';
+    reply += '3. You give posting permissions in `DESTINATION` channel TO THE ACCOUNT that was specified after successful execution of step #2\n\n';
+    reply += '4. You activate the newly created redirection using `/activate` command\n\n';
+    reply += 'Having all 4 steps completed, you can enjoy automatic messages forwarding from `SOURCE` to `DESTINATION` 🔥';
+    return bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
   }
 
   // Check Commands with MessageParser
@@ -53,7 +53,8 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       const addRedirectionResponse = await addRedirection(sender, response.source, response.destination);
       bot.send_message(sender, `New Redirection added with id ${addRedirectionResponse.dbResponse.insertId}`).catch(err => console.log(err));
     } catch (err) {
-      bot.send_message(sender, err.message).catch(err => console.log(err));;
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));;
     }
   }
 
@@ -71,10 +72,10 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       
       let response = '';
       redirections.forEach((redirection) => {
-        let state = redirection.active == 1 ? "ON ✔" : "OFF ✖";
-        response += `${redirection.source_title} => ${redirection.destination_title} [[ ${state} ]] \n`;
+        let state = redirection.active == 1 ? "🔵" : "🔴";
+        response += `--- ${state} \`[${redirection.id}]\` ${redirection.source_title} => ${redirection.destination_title}\n`;
       });
-      bot.send_message(sender, response).catch(err => console.log(err));
+      bot.send_message(sender, response, 'markdown').catch(err => console.log(err));
     
     } catch (err) {
       console.log(err);
