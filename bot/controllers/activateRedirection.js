@@ -28,7 +28,7 @@ const activateRedirection = (sender, redirectionId) => {
       const entity = await ForwardAgent.getEntity(destId, { is_id : true });
       if (entity.entity.type === 'channel' && entity.entity.megagroup === false) {
         if (!entity.entity.adminRights) {
-          throw Error('You do not have admin rights on the destination');
+          throw Error(`Please provide admin rights to @SynapticSupport on ${redirectionOfInterest[0].destination_title}`);
         }
       }
 

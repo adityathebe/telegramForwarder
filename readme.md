@@ -7,8 +7,8 @@
 # Issues
 
 - [x] Join private entities via invitation link
-- [ ] Circular redirection
-- [ ] Duplicate redirection
+- [x] Duplicate redirection
+- [ ] Circular redirection for more than 2 hops
 - [ ] Multiple Agents to prevent waiting to join entities
 
 ### FAQ:

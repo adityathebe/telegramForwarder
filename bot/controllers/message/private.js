@@ -73,7 +73,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   else if (command === '/activate') {
     try {
       await activateRedirection(sender, parsedMsg.redirectionId)
-      const reply = `Redirection activated \`[${parsedMsg.redirectionId}\`]`;
+      const reply = `Redirection activated \`[${parsedMsg.redirectionId}]\``;
       bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
@@ -91,7 +91,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       let reply = '';
       redirections.forEach((redirection) => {
         let state = redirection.active == 1 ? "🔵" : "🔴";
-        reply += `--- ${state} \`[${redirection.id}\`] ${redirection.source_title} => ${redirection.destination_title}\n`;
+        reply += `--- ${state} \`[${redirection.id}]\` ${redirection.source_title} => ${redirection.destination_title}\n`;
       });
       bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     

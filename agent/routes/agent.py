@@ -58,5 +58,6 @@ def getEntity():
 
 
 if __name__ == '__main__':
+  app.logger.disabled = True
   app.run()
   # app.run(debug=True)

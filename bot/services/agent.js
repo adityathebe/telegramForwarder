@@ -37,7 +37,7 @@ class ForwardAgent {
    * @param {String} entity
    * @returns {Promise} Returns a promise of object 
    */
-  static getEntity(entity, option) {
+  static getEntity(entity, option = { is_id : false }) {
     return new Promise(async(resolve, reject) => {
       try {
         let endpoint = `getentity?entity=${entity}`;

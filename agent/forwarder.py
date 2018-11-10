@@ -63,12 +63,6 @@ def my_event_handler(event):
   except Exception as err:
     print(err)
 
-  # For receiver in receivers:
-  #   If user is premium:
-  #     Send message
-  #   Else:
-  #     Forward Message
-
   # Mark as read
   try:
     client.send_read_acknowledge(sender_id, max_id=event.original_update.pts)

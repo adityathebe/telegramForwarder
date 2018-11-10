@@ -13,7 +13,7 @@ const checkSourcePattern = (entity) => {
   if (entity.indexOf('@') === 0) return { username: entity };
   if (entity.indexOf('t.me/joinchat/') === 0) return { hash: entity.replace('t.me/joinchat/', '') };
   if (entity.indexOf('https://t.me/joinchat/') === 0) return { hash: entity.replace('https://t.me/joinchat/', '') };
-  return { error: 'Invalid format' };
+  throw new Error('Invalid format');
 }
 
 /**
@@ -28,6 +28,13 @@ const addRedirection = (sender, source, destination) => {
 
     try {
 
+      /////////////////////////////////////////////////
+      // Validate and get Source && Destination type // 
+      /////////////////////////////////////////////////
+      const sourceType = checkSourcePattern(source);
+      const destinationType = checkSourcePattern(destination);
+
+
       /////////////////
       // Quota Check //
       /////////////////
@@ -41,14 +48,6 @@ const addRedirection = (sender, source, destination) => {
           throw new Error('You have reached your quota limitation');
         }
       }
-
-      /////////////////////////////////////////////////
-      // Validate and get Source && Destination type // 
-      /////////////////////////////////////////////////
-      const sourceType = checkSourcePattern(source);
-      if (sourceType.error) return reject(sourceType.error);
-      const destinationType = checkSourcePattern(destination);
-      if (destinationType.error) return reject(destinationType.error);
 
       ///////////////////////////////////////
       // Get Entities                      //
