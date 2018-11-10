@@ -37,10 +37,11 @@ class ForwardAgent {
    * @param {String} entity
    * @returns {Promise} Returns a promise of object 
    */
-  static getEntity(entity) {
+  static getEntity(entity, option) {
     return new Promise(async(resolve, reject) => {
       try {
-        const endpoint = `getentity?entity=${entity}`;
+        let endpoint = `getentity?entity=${entity}`;
+        if (option.is_id) { endpoint += `&is_id=1` };
         const resp = await _sendRequest(endpoint);
 
         if (resp._ === 'User') {
@@ -65,6 +66,7 @@ class ForwardAgent {
               title: resp.title || resp.username,
               accessHash: resp.access_hash,
               megagroup: resp.megagroup,
+              adminRights : resp.admin_rights
             }
           })
         }

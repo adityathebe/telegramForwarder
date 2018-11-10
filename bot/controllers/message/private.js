@@ -4,6 +4,7 @@ const MessageParser = require('./parser');
 
 // Controllers
 const addRedirection = require('../addRedirection');
+const activateRedirection = require('../activateRedirection');
 const removeRedirection = require('../removeRedirection');
 
 const handlePrivateMessage = async (sender, messageEvent) => {
@@ -41,27 +42,43 @@ const handlePrivateMessage = async (sender, messageEvent) => {
 
   const command = MessageParser.getCommand(message);
   const parser = MessageParser.hashMap()[command];
-  const response = parser(message);
+  const parsedMsg = parser(message);
 
-  if (response.error) {
-    const reply = `Error in command : ${response.command}\n\n**${response.error}**`;
+  if (parsedMsg.error) {
+    const reply = `Error in command : ${parsedMsg.command}\n\n**${parsedMsg.error}**`;
     return bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
   }
 
   if (command === '/add') {
     try {
-      const addRedirectionResponse = await addRedirection(sender, response.source, response.destination);
+      const addRedirectionResponse = await addRedirection(sender, parsedMsg.source, parsedMsg.destination);
       const reply = `New Redirection added with id \`${addRedirectionResponse.dbResponse.insertId}\``;
       bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));;
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     }
   }
 
   else if (command === '/remove') {
-    const removeRedirectionResponse = await removeRedirection(sender, response.redirectionId);
-    bot.send_message(sender, `Redirection ID: ${removeRedirectionResponse.redirectionId}`).catch(err => console.log(err));
+    try {
+      const removeRedirectionResponse = await removeRedirection(sender, parsedMsg.redirectionId);
+      bot.send_message(sender, `Redirection ID: ${removeRedirectionResponse.redirectionId}`).catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+    }
+  }
+
+  else if (command === '/activate') {
+    try {
+      await activateRedirection(sender, parsedMsg.redirectionId)
+      const reply = `Redirection activated \`[${parsedMsg.redirectionId}\`]`;
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+    }
   }
 
   else if (command === '/list') {
@@ -71,12 +88,12 @@ const handlePrivateMessage = async (sender, messageEvent) => {
         return bot.send_message(sender, 'You have no redirections').catch(err => console.log(err));
       }
       
-      let response = '';
+      let reply = '';
       redirections.forEach((redirection) => {
         let state = redirection.active == 1 ? "🔵" : "🔴";
-        response += `--- ${state} \`[${redirection.id}]\` ${redirection.source_title} => ${redirection.destination_title}\n`;
+        reply += `--- ${state} \`[${redirection.id}\`] ${redirection.source_title} => ${redirection.destination_title}\n`;
       });
-      bot.send_message(sender, response, 'markdown').catch(err => console.log(err));
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     
     } catch (err) {
       console.log(err);
