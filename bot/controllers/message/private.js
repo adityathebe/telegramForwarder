@@ -56,7 +56,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+      bot.send_message(sender, reply, 'html').catch(err => console.log(err));
     }
   }
 
@@ -66,18 +66,18 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       bot.send_message(sender, `Redirection ID: ${removeRedirectionResponse.redirectionId}`).catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+      bot.send_message(sender, reply).catch(err => console.log(err));
     }
   }
 
   else if (command === '/activate') {
     try {
       await activateRedirection(sender, parsedMsg.redirectionId)
-      const reply = `Redirection activated \`[${parsedMsg.redirectionId}]\``;
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+      const reply = `Redirection activated <code>[${parsedMsg.redirectionId}]</code>`;
+      bot.send_message(sender, reply).catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+      bot.send_message(sender, reply).catch(err => console.log(err));
     }
   }
 
@@ -91,9 +91,9 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       let reply = '';
       redirections.forEach((redirection) => {
         let state = redirection.active == 1 ? "🔵" : "🔴";
-        reply += `--- ${state} \`[${redirection.id}]\` ${redirection.source_title} => ${redirection.destination_title}\n`;
+        reply += `--- ${state} <code>[${redirection.id}]</code> ${redirection.source_title} => ${redirection.destination_title}\n`;
       });
-      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+      bot.send_message(sender, reply).catch(err => console.log(err));
     
     } catch (err) {
       console.log(err);

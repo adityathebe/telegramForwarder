@@ -7,8 +7,8 @@ from config.main import api_id, api_hash
 client = TelegramClient('session_name', api_id, api_hash)
 client.start()
 try:
-  result = client.send_message(1274806011, 'test')
-  print(result)
+  result = client.send_message('@adityathebe', 'test')
+  print(result.to_dict())
 except Exception as exception:
   print(exception)
 

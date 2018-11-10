@@ -42,12 +42,13 @@ const addRedirection = (sender, source, destination) => {
       if (userRecord.length === 0) {
         throw new Error('You have not been registered. Pleas send /start')
       }
-      const userIsPremium = userRecord[0].premium == '1' ? true: false;
+      const userIsPremium = userRecord[0].premium == '1' ? true : false;
       if (!userIsPremium) {
         if (userRecord[0].quota > QUOTA_LIMIT) {
           throw new Error('You have reached your quota limitation');
         }
       }
+
 
       ///////////////////////////////////////
       // Get Entities                      //
@@ -56,41 +57,33 @@ const addRedirection = (sender, source, destination) => {
       let sourceEntity = await ForwardAgent.getEntity(source);
       let destinationEntity = await ForwardAgent.getEntity(destination);
 
+
       //////////////////////////
       // Join agent to source //
       //////////////////////////
       let joinSrcRequestResponse = null;
       if (sourceType.username) {
-
-        // If user or bot throw error
-        if (sourceEntity.entity) {
-          if (sourceEntity.entity.type === 'user') {
-            const entityUserType = sourceEntity.entity.bot ? 'bot' : 'user';
-            throw new Error(`Cannot redirect to or from ${entityUserType}`);
-          }
+        if (sourceEntity.entity.type === 'user') {
+          joinSrcRequestResponse = await ForwardAgent.joinPublicUserEntity(sourceType.username);
+        } else {
+          joinSrcRequestResponse = await ForwardAgent.joinPublicEntity(sourceType.username);
         }
-
-        joinSrcRequestResponse = await ForwardAgent.joinPublicEntity(sourceType.username);
       } else if (sourceType.hash) {
         joinSrcRequestResponse = await ForwardAgent.joinPrivateEntity(sourceType.hash);
       }
       if (joinSrcRequestResponse.error) return reject(joinSrcRequestResponse.error);
+
 
       ///////////////////////////////
       // Join agent to destination //
       ///////////////////////////////
       let joinDestRequestResponse = null;
       if (destinationType.username) {
-
-        // If user or bot throw error
-        if (destinationEntity.entity) {
-          if (destinationEntity.entity.type === 'user') {
-            const entityUserType = destinationEntity.entity.bot ? 'bot': 'user';
-            throw new Error(`Cannot redirect to or from ${entityUserType}`);
-          }
+        if (destinationEntity.entity.type === 'user') {
+          joinDestRequestResponse = await ForwardAgent.joinPublicUserEntity(destinationType.username);
+        } else {
+          joinDestRequestResponse = await ForwardAgent.joinPublicEntity(destinationType.username);
         }
-
-        joinDestRequestResponse = await ForwardAgent.joinPublicEntity(destinationType.username);
       } else if (destinationType.hash) {
         joinDestRequestResponse = await ForwardAgent.joinPrivateEntity(destinationType.hash);
       }
@@ -117,11 +110,11 @@ const addRedirection = (sender, source, destination) => {
         const destination = redirection.destination;
 
         if (source == sourceEntity.entity.chatId && destination == destinationEntity.entity.chatId) {
-          throw new Error(`Redirection already exists with id \`[${redirection.id}]\`. `)
+          throw new Error(`Redirection already exists with id <code>[${redirection.id}]</code> `)
         }
 
-        if (source == destinationEntity.entity.chatId && destination == sourceEntity.entity.chatId ) {
-          throw new Error(`Circular redirection is not allowed \`[${redirection.id}]\`. `)
+        if (source == destinationEntity.entity.chatId && destination == sourceEntity.entity.chatId) {
+          throw new Error(`Circular redirection is not allowed <code>[${redirection.id}]</code>`)
         }
       }
 
@@ -138,6 +131,7 @@ const addRedirection = (sender, source, destination) => {
 
       return resolve({ sourceEntity, destinationEntity, dbResponse });
     } catch (err) {
+      console.log(`ERROR: [addRedirection()] ${err}`)
       reject(err);
     }
   })

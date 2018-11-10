@@ -12,6 +12,16 @@ const _sendRequest = (endpoint) => {
 
 class ForwardAgent {
 
+  static async joinPublicUserEntity(entityName) {
+    const endpoint = `joinPublicUserEntity?entity=${entityName}`;
+    try {
+      const resp = await _sendRequest(endpoint);
+      return resp;
+    } catch (err) {
+      return err;
+    }
+  }
+
   static async joinPublicEntity(entityName) {
     const endpoint = `joinPublicEntity?entity=${entityName}`;
     try {
@@ -37,8 +47,8 @@ class ForwardAgent {
    * @param {String} entity
    * @returns {Promise} Returns a promise of object 
    */
-  static getEntity(entity, option = { is_id : false }) {
-    return new Promise(async(resolve, reject) => {
+  static getEntity(entity, option = { is_id: false }) {
+    return new Promise(async (resolve, reject) => {
       try {
         let endpoint = `getentity?entity=${entity}`;
         if (option.is_id) { endpoint += `&is_id=1` };
@@ -66,7 +76,7 @@ class ForwardAgent {
               title: resp.title || resp.username,
               accessHash: resp.access_hash,
               megagroup: resp.megagroup,
-              adminRights : resp.admin_rights
+              adminRights: resp.admin_rights
             }
           })
         }
@@ -93,7 +103,7 @@ class ForwardAgent {
             entity: null,
           })
         }
-        
+
         else {
           throw new Error(resp.error);
         }
@@ -109,7 +119,7 @@ class ForwardAgent {
 module.exports = ForwardAgent;
 
 if (require.main === module) {
-  ForwardAgent.getEntity('https://t.me/joinchat/Guy9bQ_cwgVhZFUASazabA')
+  ForwardAgent.joinPublicUserEntity('@adityathebe')
     .then(x => console.log(x))
     .catch(x => console.log(x))
 }

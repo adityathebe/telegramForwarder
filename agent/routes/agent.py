@@ -14,6 +14,25 @@ client.start()
 # Create the application instance
 app = Flask(__name__)
 
+######################
+# Join Private Users #
+######################
+@app.route('/joinPublicUserEntity')
+def joinPublicUserEntity():
+  entity = request.args.get('entity')
+  is_bot = request.args.get('is_bot')
+
+  print('[/joinPublicUserEntity] :: Entity Name {}'.format(entity))
+  try:
+    msg = '/start'
+    result = client.send_message(entity, msg)
+    return jsonify(result.to_dict())
+  except Exception as exception:
+    return jsonify({'error': str(exception)})
+
+#################################
+# Join Public Groups & Channels #
+#################################
 @app.route('/joinPublicEntity')
 def joinPublicEntity():
   entity = request.args.get('entity')
@@ -26,7 +45,9 @@ def joinPublicEntity():
   except Exception as exception:
     return jsonify({'error': str(exception)})
 
-
+######################
+# Join Invation Link #
+######################
 @app.route('/joinPrivateEntity')
 def joinPrivateEntity():
   hash = request.args.get('hash')
