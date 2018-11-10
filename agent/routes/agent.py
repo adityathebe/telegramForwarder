@@ -44,6 +44,11 @@ def joinPrivateEntity():
 @app.route('/getentity')
 def getEntity():
   entity = request.args.get('entity')
+  is_entity_id = request.args.get('is_id') or '0'
+
+  if (is_entity_id == '1'):
+    entity = int(entity)
+
   print('[/getentity] :: Entity Name {}'.format(entity))
   try:
     result = client.get_entity(entity).to_dict()
