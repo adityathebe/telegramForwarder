@@ -80,7 +80,7 @@ class Database {
   
   getRedirections(userId) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM redirections WHERE owner = ${userId}`;
+      const sql = `SELECT * FROM redirections WHERE owner = "${userId}"`;
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -136,12 +136,11 @@ class Database {
   /**
    * @param {Number} redirectionId 
    * @param {String} filterName One of specific filter names
-   * @param {Boolean} state filter state
-   * @param {String} params Array of words
+   * @param {Boolean} data filter state or filter keywords
    */
-  saveFilter(redirectionId, filterName, state, params = null) {
+  saveFilter(redirectionId, filterName, data) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO filters (red_id, name, state, params) VALUES ("${redirectionId}", "${filterName}", "${state}", "${params}");`
+      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (${redirectionId}, "${data}") ON DUPLICATE KEY UPDATE ${filterName} = "${data}";`
       this.connection.query(sql, (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -151,7 +150,7 @@ class Database {
 
   getFilter(redirectionId) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT * FROM filters WHERE red_id = "${redirectionId}"`, (error, results) => {
+      this.connection.query(`SELECT * FROM filters WHERE id = "${redirectionId}"`, (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -164,6 +163,6 @@ const db = new Database();
 module.exports = db;
 
 if (require.main === module) {
-  db.changeUserQuota('451722605', true)
+  db.getFilter('362')
     .then(x => console.log(x))
 }

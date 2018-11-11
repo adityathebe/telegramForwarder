@@ -3,6 +3,8 @@ const db = require('../../db/database');
 const MessageParser = require('./parser');
 
 // Controllers
+const addFilter = require('../addFilter');
+const getFilter = require('../getFilter');
 const addRedirection = require('../addRedirection');
 const removeRedirection = require('../removeRedirection');
 const activateRedirection = require('../activateRedirection');
@@ -15,7 +17,6 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   const forwarded = messageEvent.forward_from_chat;
 
   console.log(`\nPRIVATE MESSAGE: ${username} - ${message}`);
-
   if (message === '/start') {
     let reply = 'Welcome to MultiFeed Bot! 🔥\n\n';
     reply += 'Send /help to get usage instructions';
@@ -39,14 +40,17 @@ const handlePrivateMessage = async (sender, messageEvent) => {
 
   // Check Commands with MessageParser
   const isValidCommand = MessageParser.isValidCommand(message);
-  if (!isValidCommand) return console.log('[private.js] Invalid Command');
+  if (!isValidCommand) {
+    const reply = '❌ Command does not exist.\nType /help';
+    return bot.send_message(sender, reply).catch(err => console.log(err));
+  }
 
   const command = MessageParser.getCommand(message);
   const parser = MessageParser.hashMap()[command];
   const parsedMsg = parser(message);
 
   if (parsedMsg.error) {
-    const reply = `Error in command : ${parsedMsg.command}\n\n**${parsedMsg.error}**`;
+    const reply = `❌ Error in command : ${parsedMsg.command}\n\n**${parsedMsg.error}**`;
     return bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
   }
 
@@ -100,17 +104,51 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       if (redirections.length === 0) {
         return bot.send_message(sender, 'You have no redirections').catch(err => console.log(err));
       }
-      
+
       let reply = '';
       redirections.forEach((redirection) => {
         let state = redirection.active == 1 ? "🔵" : "🔴";
         reply += `--- ${state} <code>[${redirection.id}]</code> ${redirection.source_title} => ${redirection.destination_title}\n`;
       });
       bot.send_message(sender, reply).catch(err => console.log(err));
-    
+
     } catch (err) {
       console.log(err);
       bot.send_message(sender, err);
+    }
+  }
+
+  else if (command === '/filter') {
+    try {
+      const response = await addFilter(sender, parsedMsg);
+      let reply = `✅ Command Success.\n\n<code>`;
+      reply += `- Redirection id : [${response.filterData.redirectionId}]\n`;
+      reply += `- Filter Name : ${response.filterData.name}\n`;
+      reply += `- Filter State : ${response.filterData.state}</code>`;
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    }
+  }
+
+  else if (command === '/filters') {
+    try {
+      const filter = await getFilter(sender, parsedMsg.filterId);
+      let reply = `✅ Filters for redirection <code>[${filter.id}]</code>\n\n`;
+      reply += '<code>'
+      reply += `- ${filter.audio === 1 ? '🔵' : '🔴'} audio\n`
+      reply += `- ${filter.video === 1 ? '🔵' : '🔴'} video\n`
+      reply += `- ${filter.photo === 1 ? '🔵' : '🔴'} photo\n`
+      reply += `- ${filter.sticker === 1 ? '🔵' : '🔴'} sticker\n`
+      reply += `- ${filter.document === 1 ? '🔵' : '🔴'} document\n`
+      reply += `- ${filter.geo === 1 ? '🔵' : '🔴'} geo\n`
+      reply += `- ${filter.document === 1 ? '🔵' : '🔴'} contact\n`
+      reply += '</code>'
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
     }
   }
 }

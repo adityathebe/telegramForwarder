@@ -45,24 +45,52 @@ const parseCommandFilter = (message) => {
   /*
    Should take 3 or more parameters depending on the filter
    /filter stickers 12345 on
+   /filter contains 12345 on
+   phrase1
+   phrase2
   */
 
+  let parsedResponse = {};
   const msgArr = message.trim().split(' ');
-  if (msgArr.length !== 4) return commandError(msgArr[0], 'Should contain at least 4 parameters');
+  if (msgArr.length < 4) return commandError(msgArr[0], 'Should contain at least 3 parameters');
 
-  const validFilters = ['photos', 'videos', 'audio', 'stickers', 'contains', 'notcontains']
+  const validFilters = ['photo', 'video', 'audio', 'sticker', 'contain', 'notcontain']
+  const validStates = ['on', 'off'];
 
   const filterName = msgArr[1];
-  const refirectionId = msgArr[2];
-  const filterState = msgArr[3];
+  const redirectionId = msgArr[2];
+  const filterState = msgArr[3].split(/\n/g)[0];
 
   // Should be valid filter
-  if (validFilters.indexOf(filterName) < 0) return commandError(msgArr[0], 'Invalid Filter Name');
+  if (validFilters.indexOf(filterName) < 0) {
+    const errMsg = `Invalid filter name. Available filters :\n\n- ${validFilters.join('\n- ')}`
+    return commandError(msgArr[0], errMsg);
+  }
 
+  // Should have valid state
+  if (validStates.indexOf(filterState.toLowerCase()) < 0) {
+    const errMsg = `Invalid State. Available states :\n\n- ${validStates.join('\n- ')}`;
+    return commandError(msgArr[0], errMsg);
+  }
 
+  // If filter name is contain or notcontain gather the keywords
+  if (filterName === 'contain' || filterName === 'notcontain') {
+    const msgArrLine = message.trim().split('\n');
+    const filterKeywords = msgArrLine.splice(1, msgArrLine.length).filter(x => x !== '');
+    parsedResponse.keywords = filterKeywords;
+  }
 
+  parsedResponse.name = filterName;
+  parsedResponse.state = filterState;
+  parsedResponse.redirectionId = redirectionId;
+  return parsedResponse;
 }
 
+const parseCommandFilters = (message) => {
+  const msgArr = message.trim().split(' ');
+  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter <Filter id>');
+  return { filterId: msgArr[1] }
+}
 
 
 class MessageParser {
@@ -85,6 +113,7 @@ class MessageParser {
       '/activate': parseCommandActivate,
       '/deactivate': parseCommandDeactivate,
       '/filter': parseCommandFilter,
+      '/filters': parseCommandFilters,
     }
   }
 

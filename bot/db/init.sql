@@ -9,7 +9,7 @@ CREATE TABLE `users` (
 );
 
 CREATE TABLE `redirections` (
-	`id` INT NOT NULL AUTO_INCREMENT,
+	`id` INT AUTO_INCREMENT,
 	`owner` INT NOT NULL,
 	`source` VARCHAR(255) NOT NULL,
 	`destination` VARCHAR(255) NOT NULL,
@@ -20,11 +20,16 @@ CREATE TABLE `redirections` (
 );
 
 CREATE TABLE `filters` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-	`red_id` INT NOT NULL,
-	`params` VARCHAR(255),
-	`name` VARCHAR(255) NOT NULL,
-	`state` BOOLEAN DEFAULT FALSE,
+	`id` INT,
+	`audio` BOOLEAN DEFAULT FALSE,
+	`video` BOOLEAN DEFAULT FALSE,
+	`photo` BOOLEAN DEFAULT FALSE,
+	`sticker` BOOLEAN DEFAULT FALSE,
+	`document` BOOLEAN DEFAULT FALSE,
+	`geo` BOOLEAN DEFAULT FALSE,
+	`contact` BOOLEAN DEFAULT FALSE,
+	`contain` VARCHAR(255),
+	`notcontain` VARCHAR(255),
 	PRIMARY KEY (`id`)
 );
 
@@ -32,4 +37,4 @@ ALTER TABLE `users` ADD CONSTRAINT `users_fk0` FOREIGN KEY (`ref_by`) REFERENCES
 
 ALTER TABLE `redirections` ADD CONSTRAINT `redirections_fk0` FOREIGN KEY (`owner`) REFERENCES `users`(`chat_id`) ON DELETE CASCADE;
 
-ALTER TABLE `filters` ADD CONSTRAINT `filters_fk0` FOREIGN KEY (`red_id`) REFERENCES `redirections`(`id`) ON DELETE CASCADE;
+ALTER TABLE `filters` ADD CONSTRAINT `filters_fk0` FOREIGN KEY (`id`) REFERENCES `redirections`(`id`) ON DELETE CASCADE;
