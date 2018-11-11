@@ -41,7 +41,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
   // Check Commands with MessageParser
   const isValidCommand = MessageParser.isValidCommand(message);
   if (!isValidCommand) {
-    const reply = '❌ Command does not exist.\nType /help';
+    const reply = '❌ Command does not exist.\n\nType /help';
     return bot.send_message(sender, reply).catch(err => console.log(err));
   }
 
@@ -144,6 +144,8 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} document\n`
       reply += `- ${filter.geo === 1 ? '🔵' : '🔴'} geo\n`
       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} contact\n`
+      reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${filter.contain ? filter.contain.replace('<stop_word>', ', ') : null}\n`;
+      reply += `- ${filter.notcontain ? '🔵' : '🔴'} notcontain = ${filter.notcontain ? filter.notcontain.replace('<stop_word>', ', ') : null}`;
       reply += '</code>'
       bot.send_message(sender, reply).catch(err => console.log(err));
     } catch (err) {

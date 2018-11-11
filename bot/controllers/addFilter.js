@@ -24,15 +24,14 @@ const addFilter = (sender, filterData) => {
       // If Filtername is contain or notcontain //
       ////////////////////////////////////////////
       if (filterData.keywords) {
-
+        const keywords = filterData.keywords.join('<stop_word>');
+        const dbResponse = await database.saveFilter(filterData.redirectionId, filterData.name, keywords);
+        return resolve({ filterData, dbResponse });
+      } else {
+        const filterState = filterData.state === 'on' ? 1 : 0;
+        const dbResponse = await database.saveFilter(filterData.redirectionId, filterData.name, filterState);
+        return resolve({ filterData, dbResponse });
       }
-
-      ////////////////////////
-      // Update to database //
-      ////////////////////////
-      const filterState = filterData.state === 'on' ? 1 : 0;
-      const dbResponse = await database.saveFilter(filterData.redirectionId, filterData.name, filterState);
-      return resolve({ filterData, dbResponse });
     } catch (err) {
       reject(err);
     }
@@ -42,7 +41,12 @@ const addFilter = (sender, filterData) => {
 module.exports = addFilter;
 
 if (require.main === module) {
-  addFilter('451722605', '30')
+  addFilter('451722605', {
+    redirectionId: 41,
+    state: 'on',
+    keywords: ['hi', 'there', 'how are you ?'],
+    name: 'contain'
+  })
     .then(x => console.log(x))
     .catch(x => console.log(x))
 }

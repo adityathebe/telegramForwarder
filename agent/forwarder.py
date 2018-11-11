@@ -60,10 +60,7 @@ def my_event_handler(event):
       user = database.get_user(user_id)
       user_is_premium = user[4]
 
-      # All Filters Here
-      # containsMedia = type(event.original_update
-      # <class 'telethon.tl.types.UpdateNewMessage'>
-
+      # Allow premium users only
       if user_is_premium == 1:
         if has_media:
           client.send_file(destination, event.media)
