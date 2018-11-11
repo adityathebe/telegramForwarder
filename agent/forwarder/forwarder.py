@@ -1,27 +1,29 @@
 import os
+import sys
 import logging
-import requests as request
-from config.main import api_id, api_hash
+sys.path.append("..")
 logging.basicConfig(level=logging.ERROR)
 
-# Connect to Telegram
-from telethon.tl.functions.channels import JoinChannelRequest
+# Telegram Imports
+from config.main import api_id, api_hash
 from telethon import TelegramClient, events
-session_path = os.path.join(os.path.dirname(__file__), 'session_name.session')
-client = TelegramClient(session_path, api_id, api_hash)
-response = client.start()
-print('Logged in as @{}'.format(response.get_me().username))
+from telethon.tl.functions.channels import JoinChannelRequest
 
 # Connect to database
 from db.database import Database
 database = Database()
+
+# Connect to Telegram
+session_path = '../session_name.session'
+client = TelegramClient(session_path, api_id, api_hash)
 
 @client.on(events.NewMessage)
 def my_event_handler(event):
 
   # Ignore Outgoing Message Updates
   is_outgoing_message = event.out
-  if (is_outgoing_message): return
+  if (is_outgoing_message):
+    return
 
   is_group = event.is_group
   is_channel = event.is_channel
@@ -78,6 +80,9 @@ def my_event_handler(event):
     client.send_read_acknowledge(sender_id, max_id=event.original_update.pts)
   except Exception as ex:
     print(ex)
-  
 
-client.run_until_disconnected()
+
+if __name__ == "__main__":
+  response = client.start()
+  print('Logged in as @{}'.format(response.get_me().username))
+  client.run_until_disconnected()

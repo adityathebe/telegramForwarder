@@ -1,15 +1,24 @@
+import os
 import sys
+import logging
 sys.path.append("..")
+logging.basicConfig(level=logging.ERROR)
+
+# Flask Import
 from flask import Flask, request, jsonify
+import logging
+logging.basicConfig(level=logging.ERROR)
+
+# Telegram Imports
 import telethon
-from telethon import TelegramClient, events  # , sync
+from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from config.main import api_id, api_hash
 
-# Start Telegram Client
-client = TelegramClient('../session_name.session', api_id, api_hash)
-client.start()
+# Connect to Telegram
+session_path = '../session_name.session'
+client = TelegramClient(session_path, api_id, api_hash)
 
 # Create the application instance
 app = Flask(__name__)
@@ -77,8 +86,8 @@ def getEntity():
   except Exception as exception:
     return jsonify({'error': str(exception)})
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
+  response = client.start()
+  print('Logged in as @{}'.format(response.get_me().username))
   app.logger.disabled = True
   app.run()
-  # app.run(debug=True)
