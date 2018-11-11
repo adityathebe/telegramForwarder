@@ -1,6 +1,8 @@
 import os
+import logging
 import requests as request
 from config.main import api_id, api_hash
+logging.basicConfig(level=logging.ERROR)
 
 # Connect to Telegram
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -25,24 +27,26 @@ def my_event_handler(event):
   is_channel = event.is_channel
   is_private = event.is_private
   message = event.message.message
+  has_media = event.media
   sender_id = None
 
   if is_channel:
-    print('Channel Message')
+    print('\n\n# Channel Message')
     sender_id = event.message.to_id.channel_id
-  
+
   elif is_group:
-    print('Group Message')
+    print('\n\n# Group Message')
     sender_id = event.message.to_id.chat_id
 
   elif is_private:
-    print('Private Message')
-    sender_id = event.original_update.user_id
+    print('\n\n# Private Message')
+    sender_id = event.from_id if has_media else event.original_update.user_id
 
   else:
     print('Invalid Sender Type', event)
-  
-  print({'sender': sender_id, 'message': message})
+
+  print('New Message : {}'.format(message))
+  print('Sender : {}'.format(sender_id))
 
   # Get all Receivers of given userid
   try:
@@ -56,10 +60,19 @@ def my_event_handler(event):
       user = database.get_user(user_id)
       user_is_premium = user[4]
 
-      if user_is_premium:
-        client.send_message(destination, message)
+      # All Filters Here
+      # containsMedia = type(event.original_update
+      # <class 'telethon.tl.types.UpdateNewMessage'>
+
+      if user_is_premium == 1:
+        if has_media:
+          client.send_file(destination, event.media)
+        else:
+          client.send_message(destination, message)
+
       else:
         client.forward_messages(destination, event.message.id, sender_id)
+      print('Message sent to {}'.format(destination))
   except Exception as err:
     print(err)
 
