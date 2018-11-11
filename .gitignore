@@ -4,4 +4,3 @@ agent/session_name.session
 agent/config
 agent/session_name.session-journal
 __pycache__
-devlog.md

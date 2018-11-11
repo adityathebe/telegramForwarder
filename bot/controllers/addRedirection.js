@@ -44,8 +44,8 @@ const addRedirection = (sender, source, destination) => {
       }
       const userIsPremium = userRecord[0].premium == '1' ? true : false;
       if (!userIsPremium) {
-        if (userRecord[0].quota > QUOTA_LIMIT) {
-          throw new Error('You have reached your quota limitation');
+        if (userRecord[0].quota >= QUOTA_LIMIT) {
+          throw new Error('You have reached your quota limit. Please upgrade your account.');
         }
       }
 

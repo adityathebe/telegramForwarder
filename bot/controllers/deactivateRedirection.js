@@ -1,6 +1,11 @@
 const database = require('../db/database');
 
-const removeRedirection = async (sender, redirectionId) => {
+/**
+ * Activates a redirection
+ * @param {String} sender Chat id of the owner
+ * @param {String} redirectionId Redirection Id
+ */
+const deactivateRedirection = (sender, redirectionId) => {
   return new Promise(async (resolve, reject) => {
     try {
       /////////////////////////////////////////////
@@ -13,13 +18,18 @@ const removeRedirection = async (sender, redirectionId) => {
       ////////////////////////
       // Update to database //
       ////////////////////////
-      const dbResponse = await database.removeRedirection(redirectionId);
-      return resolve({ dbResponse });
+      const dbResponse = await database.deactivateRedirection(redirectionId);
+      return resolve({ redirection: redirectionOfInterest[0], dbResponse });
     } catch (err) {
-      console.log(`[Error removeRedirection.js] :: ${err}`);
-      return reject(err);
+      reject(err);
     }
   })
 }
 
-module.exports = removeRedirection;
+module.exports = deactivateRedirection;
+
+if (require.main === module) {
+  deactivateRedirection('451722605', '39')
+    .then(x => console.log(x))
+    .catch(x => console.log(x))
+}
