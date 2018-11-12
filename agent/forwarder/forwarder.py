@@ -9,13 +9,17 @@ from config.main import api_id, api_hash
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 
+# Import Filter
+from filter import Filter
+
 # Connect to database
 from db.database import Database
 database = Database()
 
 # Connect to Telegram
-session_path = '../session_name.session'
+session_path = os.path.abspath('../session_name.session')
 client = TelegramClient(session_path, api_id, api_hash)
+client.session.save_entities = True
 
 @client.on(events.NewMessage)
 def my_event_handler(event):
@@ -47,13 +51,17 @@ def my_event_handler(event):
   else:
     print('Invalid Sender Type', event)
 
-  print('New Message : {}'.format(message))
+  print('Message : {}'.format(message))
   print('Sender : {}'.format(sender_id))
+
+  # Mark as read
+  client.send_read_acknowledge(sender_id, max_id=event.original_update.pts)
 
   # Get all Receivers of given userid
   try:
     redirections = database.get_redirections_of_source(sender_id)
     for redirection in redirections:
+      redirection_id = redirection[0]
       user_id = redirection[1]
       source = redirection[2]
       destination = int(redirection[3])
@@ -64,22 +72,21 @@ def my_event_handler(event):
 
       # Allow premium users only
       if user_is_premium == 1:
+        should_filter = Filter.filter_msg(redirection_id, event)
+        if should_filter:
+          return print('Filtered out')
+
         if has_media:
           client.send_file(destination, event.media)
         else:
           client.send_message(destination, message)
 
-      else:
-        client.forward_messages(destination, event.message.id, sender_id)
+      # else:
+        # client.forward_messages(destination, event.message.id, sender_id)
       print('Message sent to {}'.format(destination))
+
   except Exception as err:
     print(err)
-
-  # Mark as read
-  try:
-    client.send_read_acknowledge(sender_id, max_id=event.original_update.pts)
-  except Exception as ex:
-    print(ex)
 
 
 if __name__ == "__main__":

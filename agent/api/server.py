@@ -6,8 +6,6 @@ logging.basicConfig(level=logging.ERROR)
 
 # Flask Import
 from flask import Flask, request, jsonify
-import logging
-logging.basicConfig(level=logging.ERROR)
 
 # Telegram Imports
 import telethon
@@ -17,7 +15,7 @@ from telethon.tl.functions.messages import ImportChatInviteRequest
 from config.main import api_id, api_hash
 
 # Connect to Telegram
-session_path = '../session_name.session'
+session_path = os.path.abspath('../session_name.session')
 client = TelegramClient(session_path, api_id, api_hash)
 
 # Create the application instance

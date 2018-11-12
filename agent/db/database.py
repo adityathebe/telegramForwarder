@@ -11,6 +11,7 @@ class Database:
         passwd = DB_passwd,
         database = DB_database
     )
+    self.db.autocommit = True
 
   def get_user(self, user_id):
     cursor = self.db.cursor()
@@ -29,6 +30,17 @@ class Database:
     cursor.close()
     return result
 
+  def get_redirection(self, redirection_id):
+    """"
+    Get redirection of given redirection id
+    """
+    cursor = self.db.cursor()
+    sql = "SELECT * FROM redirections WHERE id = {} AND active = 1;".format(redirection_id)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
   def get_all_redirections(self):
     cursor = self.db.cursor()
     sql = "SELECT * FROM redirections;"
@@ -37,8 +49,15 @@ class Database:
     cursor.close()
     return result
 
+  def get_filter(self, filter_id):
+    cursor = self.db.cursor()
+    sql = "SELECT * FROM filters WHERE id = {};".format(filter_id)
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    cursor.close()
+    return result
 
 if __name__ == "__main__":
   db = Database()
-  r = db.get_redirections_of_source('1203470519')
+  r = db.get_filter('41')
   print(r)
