@@ -6,6 +6,7 @@ const MessageParser = require('./parser');
 const addFilter = require('../addFilter');
 const getFilter = require('../getFilter');
 const addRedirection = require('../addRedirection');
+const addTransformation = require('../addTransformation');
 const removeRedirection = require('../removeRedirection');
 const activateRedirection = require('../activateRedirection');
 const deactivateRedirection = require('../deactivateRedirection');
@@ -144,9 +145,20 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} document\n`
       reply += `- ${filter.geo === 1 ? '🔵' : '🔴'} geo\n`
       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} contact\n`
-      reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${filter.contain ? filter.contain.replace('<stop_word>', ', ') : null}\n`;
+      reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${filter.contain ? filter.contain.replace(/<stop_word>/g, ', ') : null}\n`;
       reply += `- ${filter.notcontain ? '🔵' : '🔴'} notcontain = ${filter.notcontain ? filter.notcontain.replace('<stop_word>', ', ') : null}`;
       reply += '</code>'
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    }
+  }
+
+  else if (command === '/transform') {
+    try {
+      const response = await addTransformation(sender, parsedMsg.redirectionId, parsedMsg.oldPhrase, parsedMsg.newPharse);
+      const reply = `New transformation added with id <code>${response.transformationId}</code>`
       bot.send_message(sender, reply).catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';

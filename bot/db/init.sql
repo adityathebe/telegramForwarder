@@ -33,8 +33,18 @@ CREATE TABLE `filters` (
 	PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `transformations` (
+	`id` INT AUTO_INCREMENT,
+	`redirection_id` INT NOT NULL,
+	`old_phrase` VARCHAR(255) NOT NULL,
+	`new_phrase` VARCHAR(255) NOT NULL,
+	PRIMARY KEY(`id`)
+);
+
 ALTER TABLE `users` ADD CONSTRAINT `users_fk0` FOREIGN KEY (`ref_by`) REFERENCES `users`(`ref_code`) ON DELETE CASCADE;
 
 ALTER TABLE `redirections` ADD CONSTRAINT `redirections_fk0` FOREIGN KEY (`owner`) REFERENCES `users`(`chat_id`) ON DELETE CASCADE;
 
 ALTER TABLE `filters` ADD CONSTRAINT `filters_fk0` FOREIGN KEY (`id`) REFERENCES `redirections`(`id`) ON DELETE CASCADE;
+
+ALTER TABLE `transformations` ADD CONSTRAINT `transformations_fk0` FOREIGN KEY (`redirection_id`) REFERENCES `redirections`(`id`) ON DELETE CASCADE;

@@ -119,7 +119,7 @@ class ForwardAgent {
 module.exports = ForwardAgent;
 
 if (require.main === module) {
-  ForwardAgent.joinPublicUserEntity('@adityathebe')
+  ForwardAgent.getEntity('1256091383', { is_id: true })
     .then(x => console.log(x))
     .catch(x => console.log(x))
 }

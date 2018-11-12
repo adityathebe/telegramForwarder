@@ -98,3 +98,18 @@ Command format:
 - hashtags
 - contains
 - notContains
+
+
+# Set commands
+
+Message this to @botfather
+```
+add - Add Redirection
+activate - Activate redirection
+deactivate - Deactivate redirection
+list - List redirection
+remove - Remove redirection
+filter - Add Filter
+filters - Get filter
+help - Get help
+```

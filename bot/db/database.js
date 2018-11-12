@@ -156,6 +156,19 @@ class Database {
       });
     });
   }
+
+  /////////////////////
+  // Transformations //
+  /////////////////////
+  saveTransformation(redirectionId, oldPhrase, newPhrase) {
+    return new Promise((resolve, reject) => {
+      const sql = `INSERT INTO transformations (redirection_id, old_phrase, new_phrase) VALUES (${redirectionId}, "${oldPhrase}", "${newPhrase}") ON DUPLICATE KEY UPDATE id=id;`
+      this.connection.query(sql, (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+  }
 }
 
 const db = new Database();
@@ -163,6 +176,6 @@ const db = new Database();
 module.exports = db;
 
 if (require.main === module) {
-  db.getFilter('362')
+  db.saveTransformation('47', 'old', 'new')
     .then(x => console.log(x))
 }

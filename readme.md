@@ -8,8 +8,9 @@
 
 - [x] Join private entities via invitation link
 - [x] Duplicate redirection
-- [ ] Circular redirection for more than 2 hops
-- [ ] Multiple Agents to prevent waiting to join entities
+- [ ] Multiple Worker Agents
+- [ ] utf8 encoding mysql database
+- [ ] Shareable session
 
 ### FAQ:
 

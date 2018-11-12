@@ -27,7 +27,7 @@ def my_event_handler(event):
   # Ignore Outgoing Message Updates
   is_outgoing_message = event.out
   if (is_outgoing_message):
-    return
+    return print('Ignore outgoing message')
 
   is_group = event.is_group
   is_channel = event.is_channel

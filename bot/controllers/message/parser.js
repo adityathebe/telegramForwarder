@@ -1,10 +1,32 @@
-const validCommands = ['/add', '/remove', '/list', '/activate', '/deactivate', '/help', '/ref', '/filters', '/filter'];
+const validCommands = ['/add',
+  '/remove',
+  '/list',
+  '/activate',
+  '/deactivate',
+  '/help',
+  '/ref',
+  '/filters',
+  '/filter',
+  '/transform'
+];
 
 // Command Error Constructor Function
 const commandError = (command, errorMsg) => {
   return {
     command,
     error: errorMsg,
+  }
+}
+
+const parseCommandTransform = (message) => {
+  const msgArr = message.trim().split(' ');
+  let errMsg = 'Should contain 3 parameters.\n\n'
+  errMsg += '`/transform <redirection id> <phrase to transform> <phrase to transform with>`'
+  if (msgArr.length !== 4) return commandError(msgArr[0], errMsg);
+  return {
+    redirectionId: msgArr[1],
+    old_phrase: msgArr[2],
+    new_phrase: msgArr[3],
   }
 }
 
@@ -53,7 +75,13 @@ const parseCommandFilter = (message) => {
 
   let parsedResponse = {};
   const msgArr = message.trim().split(' ');
-  if (msgArr.length < 4) return commandError(msgArr[0], 'Should contain at least 3 parameters');
+  if (msgArr.length < 4) {
+    let reply = 'Should contain at least 3 parameters.\n\n';
+    reply += '`/filter <filter name> <redirection id> <filter state>`\n\n';
+    reply += 'Example : \n\n'
+    reply += '`/filter photo 152 on`'
+    return commandError(msgArr[0], reply );
+  }
 
   const validFilters = ['photo', 'video', 'audio', 'sticker', 'contain', 'notcontain']
   const validStates = ['on', 'off'];
@@ -132,6 +160,7 @@ class MessageParser {
       '/deactivate': parseCommandDeactivate,
       '/filter': parseCommandFilter,
       '/filters': parseCommandFilters,
+      '/transform': parseCommandTransform,
     }
   }
 

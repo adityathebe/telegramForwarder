@@ -33,7 +33,7 @@ const getFilter = (sender, filterId) => {
 module.exports = getFilter;
 
 if (require.main === module) {
-  getFilter('451722605', 41)
+  getFilter('474402718', 46)
     .then(x => console.log(x))
     .catch(e => console.log(e))
 }

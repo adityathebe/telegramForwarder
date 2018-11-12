@@ -17,4 +17,13 @@
 - [x] Restrict every feature to only premium users (set quota = 0)
 - [x] Deactivate Redictions
 - [x] Remove Redictions
-- [ ] Add Filters
+- [x] Add Filters Commands
+- [x] Display Filters
+
+# Nov 12 
+
+- [x] Enable Filter in Agent
+- [x] Add Transformation
+- [ ] List Transformation
+- [ ] Remove Transformation
+- [ ] Enable Transfromation feature
