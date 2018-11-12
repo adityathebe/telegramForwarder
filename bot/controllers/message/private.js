@@ -7,6 +7,7 @@ const addFilter = require('../addFilter');
 const getFilter = require('../getFilter');
 const addRedirection = require('../addRedirection');
 const addTransformation = require('../addTransformation');
+const swapTransformationRank = require('../swapTransformationRank');
 const removeRedirection = require('../removeRedirection');
 const activateRedirection = require('../activateRedirection');
 const deactivateRedirection = require('../deactivateRedirection');
@@ -157,7 +158,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
 
   else if (command === '/transform') {
     try {
-      const response = await addTransformation(sender, parsedMsg.redirectionId, parsedMsg.oldPhrase, parsedMsg.newPharse);
+      const response = await addTransformation(sender, parsedMsg.redirectionId, parsedMsg.oldPhrase, parsedMsg.newPhrase);
       const reply = `New transformation added with id <code>${response.transformationId}</code>`
       bot.send_message(sender, reply).catch(err => console.log(err));
     } catch (err) {
@@ -165,6 +166,19 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       bot.send_message(sender, reply).catch(err => console.log(err));
     }
   }
+
+  else if (command === '/transform-rank') {
+    try {
+      await swapTransformationRank(sender, parsedMsg.redirectionId, parsedMsg.rank1, parsedMsg.rank2);
+      let reply = `Transformation rank swapped for redirection id \`${parsedMsg.redirectionId}\`\n\n`;
+      reply += `\`${parsedMsg.rank1} <==> ${parsedMsg.rank2}\``;
+      bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    }
+  }
+
 }
 
 module.exports = handlePrivateMessage;

@@ -14,6 +14,7 @@ const removeRedirection = async (sender, redirectionId) => {
       // Update to database //
       ////////////////////////
       const dbResponse = await database.removeRedirection(redirectionId);
+      await database.changeUserQuota(sender, false);
       return resolve({ dbResponse });
     } catch (err) {
       console.log(`[Error removeRedirection.js] :: ${err}`);

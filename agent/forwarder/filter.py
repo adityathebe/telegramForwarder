@@ -40,7 +40,7 @@ class Filter:
 
     active_filter_list = []
     for key, value in filter_dict.items():
-      if value != 0 and value != '':
+      if value != 0 and value is not None:
         if key is not 'id':
           active_filter_list.append(key)
 
@@ -83,7 +83,7 @@ class Filter:
 
     # Get Active Filter list
     filter_list = Filter.get_active_filters(filter_dict)
-
+    
     # Get Message Types
     msg_type = Filter.get_message_type(message_event)
     msg_text = message_event.message.text.lower()
@@ -111,11 +111,14 @@ class Filter:
         if keyword in msg_text:
           should_filter = True
           break
+        else:
+          should_filter = False
 
     return should_filter
 
 
 if __name__ == "__main__":
-  resp = Filter.get_filter('41')
+  resp = Filter.get_filter('50')
+  print(resp)
   filter_list = Filter.get_active_filters(resp)
   print(filter_list)

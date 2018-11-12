@@ -23,7 +23,8 @@
 # Nov 12 
 
 - [x] Enable Filter in Agent
-- [x] Add Transformation
-- [ ] List Transformation
-- [ ] Remove Transformation
+- [x] Add Transformation (/transform)
+- [x] Swap Transformation ranks (/transform-rank)
+- [ ] List Transformation (/transforms)
+- [ ] Remove Transformation (/transform-remove)
 - [ ] Enable Transfromation feature

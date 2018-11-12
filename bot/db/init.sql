@@ -38,6 +38,7 @@ CREATE TABLE `transformations` (
 	`redirection_id` INT NOT NULL,
 	`old_phrase` VARCHAR(255) NOT NULL,
 	`new_phrase` VARCHAR(255) NOT NULL,
+	`rank` INT NOT NULL,
 	PRIMARY KEY(`id`)
 );
 

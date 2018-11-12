@@ -7,7 +7,8 @@ const validCommands = ['/add',
   '/ref',
   '/filters',
   '/filter',
-  '/transform'
+  '/transform',
+  '/transform-rank',
 ];
 
 // Command Error Constructor Function
@@ -19,14 +20,37 @@ const commandError = (command, errorMsg) => {
 }
 
 const parseCommandTransform = (message) => {
-  const msgArr = message.trim().split(' ');
-  let errMsg = 'Should contain 3 parameters.\n\n'
-  errMsg += '`/transform <redirection id> <phrase to transform> <phrase to transform with>`'
-  if (msgArr.length !== 4) return commandError(msgArr[0], errMsg);
+  const msgArrOfLines = message.trim().split('\n');
+  const msgArr = msgArrOfLines[0].trim().replace(/\n/g, '').split(' ');
+  if (msgArrOfLines.length !== 3 || msgArr.length !== 2) {
+    let errMsg = 'Should contain 3 parameters.\n\n';
+    errMsg += '`/transform <redirection id>\n`';
+    errMsg += '`<phrase to transform>\n<phrase to transform with>`\n\n';
+    errMsg += 'Example: \n\n';
+    errMsg += '`/transform 1\njustin bieber\nFreddie Mercury`';
+    return commandError(msgArr[0], errMsg);
+  }
   return {
     redirectionId: msgArr[1],
-    old_phrase: msgArr[2],
-    new_phrase: msgArr[3],
+    oldPhrase: msgArrOfLines[1],
+    newPhrase: msgArrOfLines[2],
+  }
+}
+
+const parseCommandTransformRank = (message) => {
+  const msgArr = message.trim().split(' ');
+  if (msgArr.length !== 4) {
+    let errMsg = 'Should contain 3 parameters.\n\n';
+    errMsg += '`/transform <redirection id> <rank1> <rank2>\n\n`';
+    errMsg += 'Example: \n\n';
+    errMsg += '`/transform 100 2 3`';
+    return commandError(msgArr[0], errMsg);
+  }
+
+  return {
+    redirectionId: msgArr[1],
+    rank1: msgArr[2],
+    rank2: msgArr[3],
   }
 }
 
@@ -161,6 +185,7 @@ class MessageParser {
       '/filter': parseCommandFilter,
       '/filters': parseCommandFilters,
       '/transform': parseCommandTransform,
+      '/transform-rank': parseCommandTransformRank,
     }
   }
 

@@ -44,8 +44,8 @@ class Database {
 
   saveUser(chatId, username, refCode) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO users (chat_id, username, ref_code) VALUES ("${chatId}", "${username}", "${refCode}") ON DUPLICATE KEY UPDATE chat_id=chat_id;`;
-      this.connection.query(sql, (error, results) => {
+      const sql = `INSERT INTO users (chat_id, username, ref_code) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE chat_id=chat_id;`;
+      this.connection.query(sql, [chatId, username, refCode], (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -77,7 +77,7 @@ class Database {
   //////////////////
   // REDIRECTIONS //
   //////////////////
-  
+
   getRedirections(userId) {
     return new Promise((resolve, reject) => {
       const sql = `SELECT * FROM redirections WHERE owner = "${userId}"`;
@@ -136,12 +136,12 @@ class Database {
   /**
    * @param {Number} redirectionId 
    * @param {String} filterName One of specific filter names
-   * @param {Boolean} data filter state or filter keywords
+   * @param {} data filter state or filter keywords
    */
   saveFilter(redirectionId, filterName, data) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (${redirectionId}, "${data}") ON DUPLICATE KEY UPDATE ${filterName} = "${data}";`
-      this.connection.query(sql, (error, results) => {
+      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`
+      this.connection.query(sql, [redirectionId, data, data], (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -150,7 +150,8 @@ class Database {
 
   getFilter(redirectionId) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT * FROM filters WHERE id = "${redirectionId}"`, (error, results) => {
+      const sql = 'SELECT * FROM filters WHERE id = ?'
+      this.connection.query(sql, [redirectionId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -160,10 +161,30 @@ class Database {
   /////////////////////
   // Transformations //
   /////////////////////
-  saveTransformation(redirectionId, oldPhrase, newPhrase) {
+  saveTransformation(redirectionId, oldPhrase, newPhrase, rank) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO transformations (redirection_id, old_phrase, new_phrase) VALUES (${redirectionId}, "${oldPhrase}", "${newPhrase}") ON DUPLICATE KEY UPDATE id=id;`
-      this.connection.query(sql, (error, results) => {
+      const sql = 'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);'
+      this.connection.query(sql, [redirectionId, oldPhrase, newPhrase, rank], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+  }
+
+  getTransformationsOfRedirection(redirectionId) {
+    return new Promise((resolve, reject) => {
+      const sql = 'SELECT * FROM transformations WHERE redirection_id = ?'
+      this.connection.query(sql, [redirectionId], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+  }
+
+  changeTransformationRank(transformatioId, newRank) {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE transformations SET rank = ? Where id = ?'
+      this.connection.query(sql, [newRank, transformatioId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -176,6 +197,17 @@ const db = new Database();
 module.exports = db;
 
 if (require.main === module) {
-  db.saveTransformation('47', 'old', 'new')
-    .then(x => console.log(x))
+  async function main() {
+    const rank1 = 1;
+    const rank2 = 2;
+    const redirectionId = 41;
+    const transformations = await db.getTransformationsOfRedirection(redirectionId);
+    const requiredTransformations = transformations.filter((tranformation) => {
+      return tranformation.rank == rank1 || tranformation.rank == rank2;
+    });
+    console.log(requiredTransformations)
+    if (requiredTransformations.length !== 2) throw new Error('The transformation does not exist');
+  }
+
+  main();
 }

@@ -23,8 +23,8 @@ const addFilter = (sender, filterData) => {
       ////////////////////////////////////////////
       // If Filtername is contain or notcontain //
       ////////////////////////////////////////////
-      if (filterData.keywords) {
-        const keywords = filterData.keywords.join('<stop_word>');
+      if (filterData.name === 'contain' || filterData.name === 'notcontain') {
+        const keywords = filterData.keywords ? filterData.keywords.join('<stop_word>') : null;
         const dbResponse = await database.saveFilter(filterData.redirectionId, filterData.name, keywords);
         return resolve({ filterData, dbResponse });
       } else {
