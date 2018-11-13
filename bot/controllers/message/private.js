@@ -51,7 +51,7 @@ const handlePrivateMessage = async (sender, messageEvent) => {
 
   const command = MessageParser.getCommand(message);
   const parser = MessageParser.hashMap()[command];
-  const parsedMsg = parser(message);
+  const parsedMsg = parser(message, messageEvent);
 
   if (parsedMsg.error) {
     const reply = `❌ Error in command : ${parsedMsg.command}\n\n**${parsedMsg.error}**`;

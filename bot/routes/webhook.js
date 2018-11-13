@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
     let messageEvent = req.body.message;
     let sender = messageEvent.chat.id;
     let message_type = messageEvent.chat.type;
-
+    
     if (message_type == 'private') {
       handlePrivateMessage(sender, messageEvent)
     }

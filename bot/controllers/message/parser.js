@@ -22,6 +22,48 @@ const commandError = (command, errorMsg) => {
   }
 }
 
+const addMessageEntities = (messageEvent) => {
+  const entities = messageEvent.entities;
+  let msgText = messageEvent.text;
+  let addedOffset = 0;
+
+  entities.forEach((entity) => {
+    const entityType = entity.type;
+    let offset = entity.offset + addedOffset;
+    let length = offset + entity.length;
+
+    if (entityType === 'pre') {
+      msgText = msgText.slice(0, offset) + "```" + msgText.slice(offset);
+      length += 3
+      msgText = msgText.slice(0, length) + "```" + msgText.slice(length);
+      addedOffset += 6
+    }
+
+    else if (entityType === 'bold') {
+      msgText = msgText.slice(0, offset) + "**" + msgText.slice(offset);
+      length += 2
+      msgText = msgText.slice(0, length) + "**" + msgText.slice(length);
+      addedOffset += 4
+    }
+
+    else if (entityType === 'italic') {
+      msgText = msgText.slice(0, offset) + "__" + msgText.slice(offset);
+      length += 2
+      msgText = msgText.slice(0, length) + "__" + msgText.slice(length);
+      addedOffset += 4
+    }
+
+    else if (entityType === 'code') {
+      msgText = msgText.slice(0, offset) + "`" + msgText.slice(offset);
+      length += 1
+      msgText = msgText.slice(0, length) + "`" + msgText.slice(length);
+      addedOffset += 2
+    }
+  });
+
+  return msgText;
+}
+
 /////////////////////////////
 // Transformations Command //
 /////////////////////////////
@@ -53,7 +95,8 @@ const parseCommandTransforms = (message) => {
 }
 
 // Add Transformation
-const parseCommandTransform = (message) => {
+const parseCommandTransform = (message, messageEvent) => {
+  message = addMessageEntities(messageEvent);
   const msgArrOfLines = message.trim().split('\n');
   const msgArr = msgArrOfLines[0].trim().replace(/\n/g, '').split(' ');
   if (msgArrOfLines.length !== 3 || msgArr.length !== 2) {
@@ -153,7 +196,7 @@ const parseCommandFilter = (message) => {
     reply += '`/filter <filter name> <redirection id> <filter state>`\n\n';
     reply += 'Example : \n\n'
     reply += '`/filter photo 152 on`'
-    return commandError(msgArr[0], reply );
+    return commandError(msgArr[0], reply);
   }
 
   const validFilters = ['photo', 'video', 'audio', 'sticker', 'contain', 'notcontain']
