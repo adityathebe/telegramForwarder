@@ -11,6 +11,8 @@ const swapTransformationRank = require('../swapTransformationRank');
 const removeRedirection = require('../removeRedirection');
 const activateRedirection = require('../activateRedirection');
 const deactivateRedirection = require('../deactivateRedirection');
+const getTransformations = require('../getTransformations');
+const removeTransformation = require('../removeTransformation');
 
 const handlePrivateMessage = async (sender, messageEvent) => {
 
@@ -167,12 +169,38 @@ const handlePrivateMessage = async (sender, messageEvent) => {
     }
   }
 
-  else if (command === '/transform-rank') {
+  else if (command === '/transformrank') {
     try {
       await swapTransformationRank(sender, parsedMsg.redirectionId, parsedMsg.rank1, parsedMsg.rank2);
       let reply = `Transformation rank swapped for redirection id \`${parsedMsg.redirectionId}\`\n\n`;
       reply += `\`${parsedMsg.rank1} <==> ${parsedMsg.rank2}\``;
       bot.send_message(sender, reply, 'markdown').catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    }
+  }
+
+  else if (command === '/transforms') {
+    try {
+      const transformations = await getTransformations(sender, parsedMsg.redirectionId);
+      let reply = `Transformations for redirection <code>${parsedMsg.redirectionId}</code>\n\n`;
+      reply += '<b>ID | Rank | Old Phrase | New Phrase</b>\n';
+      transformations.forEach((transformation) => {
+        reply += `<code>${transformation.id}. [${transformation.rank}] ${transformation.old_phrase} ==> ${transformation.new_phrase}</code>\n`
+      })
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    } catch (err) {
+      const reply = err.message || err || 'Some error occured';
+      bot.send_message(sender, reply).catch(err => console.log(err));
+    }
+  }
+
+  else if (command === '/transformremove') {
+    try {
+      await removeTransformation(sender, parsedMsg.transformationId);
+      let reply = `Transformation removed <code>${parsedMsg.transformationId}</code>`;
+      bot.send_message(sender, reply).catch(err => console.log(err));
     } catch (err) {
       const reply = err.message || err || 'Some error occured';
       bot.send_message(sender, reply).catch(err => console.log(err));

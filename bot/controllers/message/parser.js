@@ -1,4 +1,5 @@
-const validCommands = ['/add',
+const validCommands = [
+  '/add',
   '/remove',
   '/list',
   '/activate',
@@ -8,7 +9,9 @@ const validCommands = ['/add',
   '/filters',
   '/filter',
   '/transform',
-  '/transform-rank',
+  '/transforms',
+  '/transformrank',
+  '/transformremove',
 ];
 
 // Command Error Constructor Function
@@ -19,6 +22,37 @@ const commandError = (command, errorMsg) => {
   }
 }
 
+/////////////////////////////
+// Transformations Command //
+/////////////////////////////
+
+// Remove Transformation
+const parseCommandTransformRemove = (message) => {
+  const msgArr = message.trim().split(' ');
+  if (msgArr.length !== 2) {
+    let errMsg = 'Should contain 1 parameter.\n\n';
+    errMsg += '`/transformremove <redirection id>\n`';
+    return commandError(msgArr[0], errMsg);
+  }
+  return {
+    transformationId: msgArr[1],
+  }
+}
+
+// List Transformations
+const parseCommandTransforms = (message) => {
+  const msgArr = message.trim().split(' ');
+  if (msgArr.length !== 2) {
+    let errMsg = 'Should contain 1 parameter.\n\n';
+    errMsg += '`/transforms <redirection id>\n`';
+    return commandError(msgArr[0], errMsg);
+  }
+  return {
+    redirectionId: msgArr[1],
+  }
+}
+
+// Add Transformation
 const parseCommandTransform = (message) => {
   const msgArrOfLines = message.trim().split('\n');
   const msgArr = msgArrOfLines[0].trim().replace(/\n/g, '').split(' ');
@@ -37,11 +71,12 @@ const parseCommandTransform = (message) => {
   }
 }
 
+// Swap rank of transformations
 const parseCommandTransformRank = (message) => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 4) {
     let errMsg = 'Should contain 3 parameters.\n\n';
-    errMsg += '`/transform <redirection id> <rank1> <rank2>\n\n`';
+    errMsg += '`/transformrank <redirection id> <rank1> <rank2>\n\n`';
     errMsg += 'Example: \n\n';
     errMsg += '`/transform 100 2 3`';
     return commandError(msgArr[0], errMsg);
@@ -54,6 +89,11 @@ const parseCommandTransformRank = (message) => {
   }
 }
 
+//////////////////////////
+// Redirection commands //
+//////////////////////////
+
+// Add Redirection
 const parseCommandAdd = (message) => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 2 parameters.\n\n'
@@ -65,6 +105,7 @@ const parseCommandAdd = (message) => {
   }
 }
 
+// Remove Redirection
 const parseCommandRemove = (message) => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter.\n\n';
@@ -73,12 +114,14 @@ const parseCommandRemove = (message) => {
   return { redirectionId: msgArr[1] }
 }
 
+// List Redirections
 const parseCommandList = (message) => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 1) return commandError(msgArr[0], 'Should not have any parameter');
   return true;
 }
 
+// Activate Redirection
 const parseCommandActivate = (message) => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter\n\n'
@@ -87,6 +130,7 @@ const parseCommandActivate = (message) => {
   return { redirectionId: msgArr[1] }
 }
 
+// Deactivate Redirection
 const parseCommandDeactivate = (message) => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter\n\n'
@@ -95,6 +139,11 @@ const parseCommandDeactivate = (message) => {
   return { redirectionId: msgArr[1] }
 }
 
+/////////////////////
+// Filter Commands //
+/////////////////////
+
+// Add Filter
 const parseCommandFilter = (message) => {
 
   let parsedResponse = {};
@@ -154,6 +203,7 @@ const parseCommandFilter = (message) => {
   return parsedResponse;
 }
 
+// List Filters
 const parseCommandFilters = (message) => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter\n\n';
@@ -185,7 +235,9 @@ class MessageParser {
       '/filter': parseCommandFilter,
       '/filters': parseCommandFilters,
       '/transform': parseCommandTransform,
-      '/transform-rank': parseCommandTransformRank,
+      '/transforms': parseCommandTransforms,
+      '/transformrank': parseCommandTransformRank,
+      '/transformremove': parseCommandTransformRemove,
     }
   }
 

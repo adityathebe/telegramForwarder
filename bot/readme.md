@@ -112,4 +112,8 @@ remove - Remove redirection
 filter - Add Filter
 filters - Get filter
 help - Get help
+transform - Add Transformation
+transforms - List Transformation for a given redirection
+transformrank - Swap rank of transformations for a given redirection
+transformremove - Remove transformation
 ```

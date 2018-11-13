@@ -15,11 +15,14 @@ const addTransformation = (sender, redirectionId, oldPhrase, newPhrase) => {
       // To determine the rank of transformation     //
       /////////////////////////////////////////////////
       const transformations = await database.getTransformationsOfRedirection(redirectionId);
-      const rankOfNewTransformation = transformations.length + 1;
+      const currentHighestRank = transformations.reduce((prevVal, curVal, curIndex) => {
+        return curVal.rank > prevVal ? curVal.rank : prevVal;
+      }, -1);
+      const rankOfNewTransformation = currentHighestRank + 1;
 
-      ////////////////////////
-      // Update to database //
-      ////////////////////////
+      /////////////////////
+      // Update database //
+      /////////////////////
       const dbResponse = await database.saveTransformation(redirectionId, oldPhrase, newPhrase, rankOfNewTransformation);
       return resolve({ redirectionId, transformationId: dbResponse.insertId });
     } catch (err) {

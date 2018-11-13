@@ -27,8 +27,8 @@ const getFilter = (sender, filterId) => {
       console.log(`[ERROR getFilters.js] : ${err}`)
       return reject(err);
     }
-  })
-}
+  });
+};
 
 module.exports = getFilter;
 

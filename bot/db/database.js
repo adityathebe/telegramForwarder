@@ -171,9 +171,19 @@ class Database {
     });
   }
 
+  getTransformation(transformationId) {
+    return new Promise((resolve, reject) => {
+      const sql = 'SELECT * FROM transformations WHERE id = ?';
+      this.connection.query(sql, [transformationId], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+  }
+
   getTransformationsOfRedirection(redirectionId) {
     return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM transformations WHERE redirection_id = ?'
+      const sql = 'SELECT * FROM transformations WHERE redirection_id = ?';
       this.connection.query(sql, [redirectionId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -181,10 +191,20 @@ class Database {
     });
   }
 
-  changeTransformationRank(transformatioId, newRank) {
+  changeTransformationRank(transformationId, newRank) {
     return new Promise((resolve, reject) => {
       const sql = 'UPDATE transformations SET rank = ? Where id = ?'
-      this.connection.query(sql, [newRank, transformatioId], (error, results) => {
+      this.connection.query(sql, [newRank, transformationId], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+  }
+
+  removeTransformation(transformationId) {
+    return new Promise((resolve, reject) => {
+      const sql = 'DELETE FROM transformations Where id = ?'
+      this.connection.query(sql, [transformationId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
       });
@@ -198,15 +218,8 @@ module.exports = db;
 
 if (require.main === module) {
   async function main() {
-    const rank1 = 1;
-    const rank2 = 2;
-    const redirectionId = 41;
-    const transformations = await db.getTransformationsOfRedirection(redirectionId);
-    const requiredTransformations = transformations.filter((tranformation) => {
-      return tranformation.rank == rank1 || tranformation.rank == rank2;
-    });
-    console.log(requiredTransformations)
-    if (requiredTransformations.length !== 2) throw new Error('The transformation does not exist');
+    const transformations = await db.getTransformation(1);
+    console.log(transformations);
   }
 
   main();
