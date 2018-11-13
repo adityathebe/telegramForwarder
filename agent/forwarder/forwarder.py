@@ -9,8 +9,11 @@ from config.main import api_id, api_hash
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 
-# Import Filter
-from filter import Filter
+# Import MessageFilter
+from filter import MessageFilter
+
+# Import MessageTransformation
+from transformation import MessageTransformation
 
 # Connect to database
 from db.database import Database
@@ -25,7 +28,7 @@ client.session.save_entities = True
 def my_event_handler(event):
 
   # Ignore Outgoing Message Updates
-  if (event.out): return 
+  if (event.out): return
 
   is_group = event.is_group
   is_channel = event.is_channel
@@ -70,14 +73,15 @@ def my_event_handler(event):
 
       # Allow premium users only
       if user_is_premium == 1:
-        should_filter = Filter.filter_msg(redirection_id, event)
+        should_filter = MessageFilter.filter_msg(redirection_id, event)
         if should_filter:
           return print('Filtered out')
 
         if has_media:
           client.send_file(destination, event.media)
         else:
-          client.send_message(destination, message)
+          transformed_message = MessageTransformation.get_transformed_msg(event, redirection_id)
+          client.send_message(destination, transformed_message)
 
       # else:
         # client.forward_messages(destination, event.message.id, sender_id)

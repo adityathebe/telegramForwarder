@@ -57,7 +57,15 @@ class Database:
     cursor.close()
     return result
 
+  def get_transformations_of_redirection(self, redirection_id):
+    cursor = self.db.cursor()
+    sql = "SELECT * FROM transformations WHERE redirection_id = {} ORDER BY rank;".format(redirection_id)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
 if __name__ == "__main__":
   db = Database()
-  r = db.get_filter('41')
+  r = db.get_transformations_of_redirection('41')
   print(r)

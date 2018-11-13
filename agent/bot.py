@@ -9,8 +9,7 @@ client = TelegramClient(session, api_id, api_hash)
 client.start()
 
 try:
-  result = client.get_entity('adityathebe')
-  print(result.to_dict())
+  client.send_message('@adityathebe', '**hi** there')
 except Exception as exception:
   print(exception)
 

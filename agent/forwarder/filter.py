@@ -6,7 +6,7 @@ from db.database import Database
 database = Database()
 
 
-class Filter:
+class MessageFilter:
 
   @staticmethod
   def get_filter(filter_id):
@@ -77,21 +77,22 @@ class Filter:
     """
 
     # Get Filter dictionary from database
-    filter_dict = Filter.get_filter(filter_id)
+    filter_dict = MessageFilter.get_filter(filter_id)
     if filter_dict == False:
       return False
 
     # Get Active Filter list
-    filter_list = Filter.get_active_filters(filter_dict)
-    
+    filter_list = MessageFilter.get_active_filters(filter_dict)
+
     # Get Message Types
-    msg_type = Filter.get_message_type(message_event)
+    msg_type = MessageFilter.get_message_type(message_event)
     msg_text = message_event.message.text.lower()
 
     if msg_type in filter_list:
       return True
 
-    should_filter = True
+    # Assume message does not contain the required word
+    contains_required_word = False
     if 'contain' in filter_list:
       # Look for text messages only
       if message_event.media is not None:
@@ -99,9 +100,11 @@ class Filter:
       keywords = filter_dict['contain'].split('<stop_word>')
       for keyword in keywords:
         if keyword in msg_text:
-          should_filter = False
+          contains_word = True
           break
 
+    # Assume message does contain the blacklist word
+    contains_blacklist_word = True
     if 'notcontain' in filter_list:
       # Look for text messages only
       if message_event.media is not None:
@@ -109,16 +112,14 @@ class Filter:
       keywords = filter_dict['notcontain'].split('<stop_word>')
       for keyword in keywords:
         if keyword in msg_text:
-          should_filter = True
+          contains_blacklist_word = False
           break
-        else:
-          should_filter = False
 
-    return should_filter
+    return contains_required_word == True and contains_blacklist_word == False
 
 
 if __name__ == "__main__":
-  resp = Filter.get_filter('50')
+  resp = MessageFilter.get_filter('50')
   print(resp)
-  filter_list = Filter.get_active_filters(resp)
+  filter_list = MessageFilter.get_active_filters(resp)
   print(filter_list)
