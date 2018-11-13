@@ -30,4 +30,5 @@
 
 - [x] List Transformation (/transforms)
 - [x] Remove Transformation (/transformremove)
-- [ ] Enable Transfromation feature
+- [x] Enable Transformation feature
+- [x] Added New Filters (Hashtag && Link)

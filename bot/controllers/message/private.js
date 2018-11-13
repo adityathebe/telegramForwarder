@@ -146,8 +146,8 @@ const handlePrivateMessage = async (sender, messageEvent) => {
       reply += `- ${filter.photo === 1 ? '🔵' : '🔴'} photo\n`
       reply += `- ${filter.sticker === 1 ? '🔵' : '🔴'} sticker\n`
       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} document\n`
-      reply += `- ${filter.geo === 1 ? '🔵' : '🔴'} geo\n`
-      reply += `- ${filter.document === 1 ? '🔵' : '🔴'} contact\n`
+      reply += `- ${filter.hashtag === 1 ? '🔵' : '🔴'} hashtag\n`
+      reply += `- ${filter.link === 1 ? '🔵' : '🔴'} link\n`
       reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${filter.contain ? filter.contain.replace(/<stop_word>/g, ', ') : null}\n`;
       reply += `- ${filter.notcontain ? '🔵' : '🔴'} notcontain = ${filter.notcontain ? filter.notcontain.replace('<stop_word>', ', ') : null}`;
       reply += '</code>'

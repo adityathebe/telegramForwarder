@@ -199,7 +199,7 @@ const parseCommandFilter = (message) => {
     return commandError(msgArr[0], reply);
   }
 
-  const validFilters = ['photo', 'video', 'audio', 'sticker', 'contain', 'notcontain']
+  const validFilters = ['photo', 'video', 'audio', 'sticker', 'document', 'hashtag', 'link', 'contain', 'notcontain']
   const validStates = ['on', 'off'];
 
   const filterName = msgArr[1];

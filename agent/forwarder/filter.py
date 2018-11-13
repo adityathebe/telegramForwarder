@@ -21,8 +21,8 @@ class MessageFilter:
         'photo': filter[3],
         'sticker': filter[4],
         'document': filter[5],
-        'geo': filter[6],
-        'contact': filter[7],
+        'hashtag': filter[6],
+        'link': filter[7],
         'contain': filter[8],
         'notcontain': filter[9]
     }
@@ -48,14 +48,25 @@ class MessageFilter:
 
   @staticmethod
   def get_message_type(event):
-    if event.media == None:
-      return 'text'
+
+    # Photos Messages
     if hasattr(event.media, 'photo'):
       return 'photo'
-    if hasattr(event.media, 'geo'):
-      return 'geo'
-    if hasattr(event.media, 'vcard'):
-      return 'contact'
+
+    # Look for links and hashtags in event.entities
+    if event.entities is not None:
+      for entity in event.entities:
+        entity_name = type(entity).__name__
+
+        if entity_name == 'MessageEntityHashtag':
+          return 'hashtag'
+
+        if entity_name == 'MessageEntityUrl':
+          return 'link'
+
+    # Text Messages
+    if event.media == None:
+      return 'text'
 
     # Documents (audio, video, sticker, files)
     mime_type = event.media.document.mime_type
