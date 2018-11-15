@@ -1,7 +1,9 @@
 bot/node_modules
 bot/config
+migrate.js
 
 agent/config/main.py
+agent/config/synaptic.py
 *.session
 *.session-journal
 __pycache__

@@ -32,3 +32,12 @@
 - [x] Remove Transformation (/transformremove)
 - [x] Enable Transformation feature
 - [x] Added New Filters (Hashtag && Link)
+
+# Nov 15
+
+- [x] Shareable sessions
+
+# Nov 15
+
+- [ ] Refactoring
+- [ ] Better Loggings

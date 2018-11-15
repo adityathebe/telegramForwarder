@@ -111,11 +111,11 @@ class MessageFilter:
       keywords = filter_dict['contain'].split('<stop_word>')
       for keyword in keywords:
         if keyword in msg_text:
-          contains_word = True
+          contains_required_word = True
           break
 
     # Assume message does contain the blacklist word
-    contains_blacklist_word = True
+    contains_blacklist_word = False
     if 'notcontain' in filter_list:
       # Look for text messages only
       if message_event.media is not None:
@@ -123,10 +123,10 @@ class MessageFilter:
       keywords = filter_dict['notcontain'].split('<stop_word>')
       for keyword in keywords:
         if keyword in msg_text:
-          contains_blacklist_word = False
+          contains_blacklist_word = True
           break
 
-    return contains_required_word == True and contains_blacklist_word == False
+    return (not contains_required_word) or contains_blacklist_word
 
 
 if __name__ == "__main__":

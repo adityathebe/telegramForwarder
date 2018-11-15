@@ -6,6 +6,7 @@ logging.basicConfig(level=logging.ERROR)
 
 # Telegram Imports
 from config.main import api_id, api_hash
+from config.main import DB_database_session, DB_host, DB_passwd, DB_user
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 
@@ -17,18 +18,25 @@ from transformation import MessageTransformation
 
 # Connect to database
 from db.database import Database
+from db.session_db import SessionDatabase
 database = Database()
+session_db = SessionDatabase()
 
 # Connect to Telegram
-session_path = os.path.abspath('../session_name.session')
-client = TelegramClient(session_path, api_id, api_hash)
-client.session.save_entities = True
+from alchemysession import AlchemySessionContainer
+container = AlchemySessionContainer('mysql://{}:{}@{}/{}'.format(
+    DB_user, DB_passwd, DB_host, DB_database_session
+))
+session = container.new_session('synapticSupportForwarder')
+client = TelegramClient(session, api_id, api_hash)
+
 
 @client.on(events.NewMessage)
 def my_event_handler(event):
 
   # Ignore Outgoing Message Updates
-  if (event.out): return
+  if (event.out):
+    return
 
   is_group = event.is_group
   is_channel = event.is_channel
@@ -56,7 +64,13 @@ def my_event_handler(event):
   print('Sender : {}'.format(sender_id))
 
   # Mark as read
-  client.send_read_acknowledge(sender_id, max_id=event.original_update.pts)
+  try:
+    user_entity = client.get_input_entity(sender_id)
+    client.send_read_acknowledge(user_entity, max_id=event.original_update.pts)
+  except Exception as e:
+    user_entity_db = session_db.get_entity(sender_id)
+    if user_entity_db is not None:
+      session_db.save_entity('synapticSupportForwarder', user_entity_db)
 
   # Get all Receivers of given userid
   try:
@@ -77,6 +91,13 @@ def my_event_handler(event):
         if should_filter:
           return print('Filtered out')
 
+        # Check if entity is in the session database
+        try:
+          client.get_input_entity(destination)
+        except Exception as e:
+          destination_entity = session_db.get_entity(destination)
+          destination = destination_entity[3]
+
         if has_media:
           client.send_file(destination, event.media)
         else:
@@ -94,4 +115,5 @@ def my_event_handler(event):
 if __name__ == "__main__":
   response = client.start()
   print('Logged in as @{}'.format(response.get_me().username))
+  client._handle_auto_reconnect()
   client.run_until_disconnected()

@@ -4,26 +4,31 @@ import logging
 sys.path.append("..")
 logging.basicConfig(level=logging.ERROR)
 
-# Flask Import
-from flask import Flask, request, jsonify
-
 # Telegram Imports
 import telethon
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from config.main import api_id, api_hash
+from config.main import DB_database_session, DB_host, DB_passwd, DB_user
 
 # Connect to Telegram
-session_path = os.path.abspath('../session_name.session')
-client = TelegramClient(session_path, api_id, api_hash)
+from alchemysession import AlchemySessionContainer
+container = AlchemySessionContainer('mysql://{}:{}@{}/{}'.format(
+    DB_user, DB_passwd, DB_host, DB_database_session
+))
+session = container.new_session('synapticSupport')
+client = TelegramClient(session, api_id, api_hash)
 
-# Create the application instance
+# Create Flask application instance
+from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 ######################
 # Join Private Users #
 ######################
+
+
 @app.route('/joinPublicUserEntity')
 def joinPublicUserEntity():
   entity = request.args.get('entity')
@@ -40,6 +45,8 @@ def joinPublicUserEntity():
 #################################
 # Join Public Groups & Channels #
 #################################
+
+
 @app.route('/joinPublicEntity')
 def joinPublicEntity():
   entity = request.args.get('entity')
@@ -55,6 +62,8 @@ def joinPublicEntity():
 ######################
 # Join Invation Link #
 ######################
+
+
 @app.route('/joinPrivateEntity')
 def joinPrivateEntity():
   hash = request.args.get('hash')
@@ -83,6 +92,7 @@ def getEntity():
     return jsonify(result)
   except Exception as exception:
     return jsonify({'error': str(exception)})
+
 
 if __name__ == "__main__":
   response = client.start()
