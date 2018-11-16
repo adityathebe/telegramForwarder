@@ -1,3 +1,7 @@
+CREATE DATABASE telegram;
+CREATE DATABASE telethonsession;
+USE telegram;
+
 CREATE TABLE `users` (
 	`chat_id` VARCHAR(255),
 	`username` VARCHAR(255) UNIQUE,

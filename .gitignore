@@ -1,5 +1,10 @@
 bot/node_modules
-bot/config
+bot/config/agent.js
+bot/config/agent.js
+bot/config/database.js
+bot/config/misc.js
+bot/config/server.js
+bot/config/telegram.js
 migrate.js
 
 agent/config/main.py

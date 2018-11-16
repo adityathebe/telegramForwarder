@@ -1,4 +1,6 @@
-Telethon-sync==1.1.1
+flask==1.0.2
 requests==2.20.0
-mysql-connector=2.1.6                   
-mysqlclient=1.3.13
+Telethon-sync==1.1.1
+telethon-session-sqlalchemy==0.2.5
+mysql-connector==2.1.6                   
+mysqlclient==1.3.13
