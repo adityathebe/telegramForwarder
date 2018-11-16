@@ -88,8 +88,7 @@ def my_event_handler(event):
       # Allow premium users only
       if user_is_premium == 1:
         should_filter = MessageFilter.filter_msg(redirection_id, event)
-        if should_filter:
-          return print('Filtered out')
+        if should_filter: return 
 
         # Check if entity is in the session database
         try:

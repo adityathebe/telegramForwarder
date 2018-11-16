@@ -90,6 +90,7 @@ class MessageFilter:
     # Get Filter dictionary from database
     filter_dict = MessageFilter.get_filter(filter_id)
     if filter_dict == False:
+      print('No filters for id : {}'.format(filter_id))
       return False
 
     # Get Active Filter list
@@ -100,7 +101,12 @@ class MessageFilter:
     msg_text = message_event.message.text.lower()
 
     if msg_type in filter_list:
+      print('Filter caught :: {}'.format(msg_type))
       return True
+
+    if 'contain' not in filter_list and 'notcontain' not in filter_list:
+      print('All filters passed.')
+      return False
 
     # Assume message does not contain the required word
     contains_required_word = False
@@ -126,6 +132,7 @@ class MessageFilter:
           contains_blacklist_word = True
           break
 
+    print('Contains word :: {} && Contains Blacklist :: {}'.format(contains_required_word, contains_blacklist_word))
     return (not contains_required_word) or contains_blacklist_word
 
 
