@@ -1,11 +1,14 @@
 {
-  "name": "johnhyunh",
+  "name": "telegram-forwarder-bot-agent",
   "version": "1.0.0",
-  "description": "",
+  "description": "Telegram bot that acts as a frontend for all the controls",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adityathebe/telegramForwarder.git"
   },
   "keywords": [],
   "author": "Aditya Thebe <contact@adityathebe.com> (https://www.adityathebe.com)",
