@@ -1,22 +1,16 @@
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
 // Initialize && Connect to Database
-const database = require('./db/database');
+require('./db/database');
 
 // Create a TelegramBot Object
-const SERVER_CONFIG = require('./config/server');
-const TELEGRAM_CONFIG = require('./config/telegram');
+const { PORT, TG} = require('./config');
 const TelegramBot = require('./services/telegram');
-const bot = new TelegramBot(TELEGRAM_CONFIG.apiKey, TELEGRAM_CONFIG.username);
-// bot.setWebhook(TELEGRAM_CONFIG.webhookUrl);
-module.exports = bot;
-if (require.main !== module) return;
+const bot = new TelegramBot(TG.TG_API_KEY, TG.TG_BOT_USERNAME);
 
 // Set up Server
-const PORT = process.env.PORT || SERVER_CONFIG.port;
+const PORT = process.env.PORT || port;
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -31,7 +25,11 @@ app.use('/', homeRoute);
 app.use('/agent', agentRoute);
 app.use('/webhook', webhookRoute);
 
-app.listen(PORT, (err) => {
-  if (err) throw err;
-  console.log(`Listening at port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, (err) => {
+    if (err) throw err;
+    console.log(`Listening at port ${PORT}`);
+  });
+}
+
+module.exports = bot;

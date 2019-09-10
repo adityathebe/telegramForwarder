@@ -1,8 +1,7 @@
 const mysql = require('mysql');
-const DB_CONFIG = require('../config/database');
+const DB_CONFIG = require('../config').DB;
 
 class Database {
-
   constructor() {
     this.connection = mysql.createConnection({
       host: DB_CONFIG.host,
@@ -11,7 +10,7 @@ class Database {
       database: DB_CONFIG.database,
     });
 
-    this.connection.connect(function (err, data) {
+    this.connection.connect(function(err, data) {
       if (err) {
         throw new Error('Error connecting: ' + err.stack);
       }
@@ -30,7 +29,7 @@ class Database {
         if (error) return reject(error);
         resolve(results);
       });
-    })
+    });
   }
 
   getAllUsers() {
@@ -39,7 +38,7 @@ class Database {
         if (error) return reject(error);
         resolve(results);
       });
-    })
+    });
   }
 
   saveUser(chatId, username, refCode) {
@@ -134,13 +133,13 @@ class Database {
   /////////////
 
   /**
-   * @param {Number} redirectionId 
+   * @param {Number} redirectionId
    * @param {String} filterName One of specific filter names
    * @param {} data filter state or filter keywords
    */
   saveFilter(redirectionId, filterName, data) {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`
+      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`;
       this.connection.query(sql, [redirectionId, data, data], (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -150,7 +149,7 @@ class Database {
 
   getFilter(redirectionId) {
     return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM filters WHERE id = ?'
+      const sql = 'SELECT * FROM filters WHERE id = ?';
       this.connection.query(sql, [redirectionId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -163,7 +162,7 @@ class Database {
   /////////////////////
   saveTransformation(redirectionId, oldPhrase, newPhrase, rank) {
     return new Promise((resolve, reject) => {
-      const sql = 'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);'
+      const sql = 'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);';
       this.connection.query(sql, [redirectionId, oldPhrase, newPhrase, rank], (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -193,7 +192,7 @@ class Database {
 
   changeTransformationRank(transformationId, newRank) {
     return new Promise((resolve, reject) => {
-      const sql = 'UPDATE transformations SET rank = ? Where id = ?'
+      const sql = 'UPDATE transformations SET rank = ? Where id = ?';
       this.connection.query(sql, [newRank, transformationId], (error, results) => {
         if (error) return reject(error);
         resolve(results);
@@ -203,7 +202,7 @@ class Database {
 
   removeTransformation(transformationId) {
     return new Promise((resolve, reject) => {
-      const sql = 'DELETE FROM transformations Where id = ?'
+      const sql = 'DELETE FROM transformations Where id = ?';
       this.connection.query(sql, [transformationId], (error, results) => {
         if (error) return reject(error);
         resolve(results);

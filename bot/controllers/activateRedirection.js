@@ -1,6 +1,5 @@
 const database = require('../db/database');
 const ForwardAgent = require('../services/agent');
-const QUOTA_LIMIT = require('../config/misc').quotaLimitFreeUser;
 
 /**
  * Activates a redirection

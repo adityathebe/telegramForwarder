@@ -1,6 +1,6 @@
 const database = require('../db/database');
 const ForwardAgent = require('../services/agent');
-const QUOTA_LIMIT = require('../config/misc').quotaLimitFreeUser;
+const QUOTA_LIMIT = require('../config/').APP.FREE_USER.QUOTA_LIMIT;
 
 /**
  * Verifies that the source/destination is in one of the two valid formats
