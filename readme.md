@@ -6,14 +6,14 @@
 
 # Installation
 
-### 1. Clone Repository
+## 1. Clone Repository
 
 ```bash
 sudo apt update && sudo apt upgrade
 git clone https://github.com/adityathebe/telegramForwarder.git
 ```
 
-### 2. Install Mysql server && Create Databases
+## 2. Install Mysql server && Create Databases
 
 ```bash
 sudo apt-get install mysql-server
@@ -42,7 +42,7 @@ $ service mysql restart
 > **NOTE**: Might need to run `mysql_secure_installation` command after this 
 
 
-### 3. Install Python and required Packages
+## 3. Install Python and required Packages
 ```bash
 sudo apt install python3
 sudo apt install python3-pip
@@ -50,8 +50,7 @@ cd agent
 pip3 install -r requirements.txt
 ```
 
-
-### 4. Install Nodejs and required Pacakges
+## 4. Install Nodejs and required Pacakges
 ```bash
 sudo apt install nodejs
 sudo apt install npm
@@ -60,7 +59,7 @@ npm install -g pm2
 npm install
 ```
 
-### 5. Run the bot
+## 5. Run the bot
 
 Before running the node scripts, we need to configure the config files `bot/config/*`
 Take a look at the samples `bot/config/sample-*.js`
@@ -70,7 +69,7 @@ cd bot
 pm2 start app.js
 ```
 
-### 6. Run the python forwarder and Flask server
+## 6. Run the python forwarder and Flask server
 
 Before running the python scripts, we need to configure the config file `agent/config/main.py`.
 Take a look at the sample `agent/config/config-sample.py`
@@ -98,9 +97,9 @@ Ctrl + b + d
 
 - [x] Join private entities via invitation link
 - [x] Duplicate redirection
+- [x] Shareable session
 - [ ] Multiple Worker Agents
 - [ ] utf8 encoding mysql database
-- [ ] Shareable session
 
 ### FAQ:
 

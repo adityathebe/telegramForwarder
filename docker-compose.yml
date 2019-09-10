@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+  # node-bot:
+  #   build: ./bot
+  #   image: telegram-forwarder-node-bot
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     MYSQL_HOST: mysql-db
+  #     MYSQL_USER: root
+  #     MYSQL_PASSWORD: Secret123
+  #     MYSQL_DB_NAME: telegramForwarder
+  #   depends_on:
+  #     - mysql-db
+
+  python-agent:
+    build: './agent'
+    image: 'telegram-forwarder-python-agent'
+    depends_on:
+      - mysql-db
+
+
+  mysql-db:
+    image: mysql:5.7.27
+    environment:
+      MYSQL_ROOT_PASSWORD: Secret123
+      MYSQL_DATABASE: telegramForwarder

@@ -37,7 +37,9 @@
 
 - [x] Shareable sessions
 
-# Nov 15
+# Nov 16
 
+- [x] Documentation and config files
+- [x] Set up bot on DigitalOcean
 - [ ] Refactoring
 - [ ] Better Loggings
