@@ -9,8 +9,8 @@ Those entities can be fetched and stored in the forwarder's session.
 import mysql.connector
 import sys
 sys.path.append("..")
-from config.main import DB_host, DB_user, DB_passwd, DB_database_session
-
+from config.main import DB_host, DB_user, DB_passwd, DB_SESSION_DBNAME
+from config.main import TELETHON_SESSION_ID, session_name_forwarder
 
 class SessionDatabase:
   def __init__(self):
@@ -18,11 +18,11 @@ class SessionDatabase:
         host=DB_host,
         user=DB_user,
         passwd=DB_passwd,
-        database=DB_database_session
+        database=DB_SESSION_DBNAME
     )
     self.db.autocommit = True
 
-  def get_entity(self, entity_id, session_id='synapticSupport'):
+  def get_entity(self, entity_id, session_id=TELETHON_SESSION_ID):
     cursor = self.db.cursor()
     sql = "SELECT * FROM entities WHERE id like '%{}' AND session_id = '{}';".format(entity_id, session_id)
     cursor.execute(sql)
@@ -47,4 +47,4 @@ if __name__ == "__main__":
   db = SessionDatabase()
   entity = db.get_entity(-1001274806011)
   entity = ('assd', 12131, 321, 'jpt', None, 'Aditya')
-  db.save_entity('synapticSupportForwarder', entity)
+  db.save_entity(session_name_forwarder, entity)

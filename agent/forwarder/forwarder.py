@@ -5,8 +5,8 @@ sys.path.append("..")
 logging.basicConfig(level=logging.ERROR)
 
 # Telegram Imports
-from config.main import api_id, api_hash
-from config.main import DB_database_session, DB_host, DB_passwd, DB_user
+from config.main import api_id, api_hash, session_name_forwarder
+from config.main import DB_SESSION_DBNAME, DB_host, DB_passwd, DB_user
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
 
@@ -25,9 +25,9 @@ session_db = SessionDatabase()
 # Connect to Telegram
 from alchemysession import AlchemySessionContainer
 container = AlchemySessionContainer('mysql://{}:{}@{}/{}'.format(
-    DB_user, DB_passwd, DB_host, DB_database_session
+    DB_user, DB_passwd, DB_host, DB_SESSION_DBNAME
 ))
-session = container.new_session('synapticSupportForwarder')
+session = container.new_session(session_name_forwarder)
 client = TelegramClient(session, api_id, api_hash)
 
 
@@ -70,7 +70,7 @@ def my_event_handler(event):
   except Exception as e:
     user_entity_db = session_db.get_entity(sender_id)
     if user_entity_db is not None:
-      session_db.save_entity('synapticSupportForwarder', user_entity_db)
+      session_db.save_entity(session_name_forwarder, user_entity_db)
 
   # Get all Receivers of given userid
   try:

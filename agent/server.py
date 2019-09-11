@@ -1,27 +1,27 @@
+from flask import Flask, request, jsonify
+from alchemysession import AlchemySessionContainer
+from config.main import DB_SESSION_DBNAME, DB_host, DB_passwd, DB_user
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.tl.functions.channels import JoinChannelRequest
+from telethon import TelegramClient, events, sync
+from config.main import api_id, api_hash, TELETHON_SESSION_ID, API_PORT
+
+
+import telethon
 import os
-import sys
 import logging
-sys.path.append("..")
 logging.basicConfig(level=logging.ERROR)
 
 # Telegram Imports
-import telethon
-from telethon import TelegramClient, events
-from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl.functions.messages import ImportChatInviteRequest
-from config.main import api_id, api_hash
-from config.main import DB_database_session, DB_host, DB_passwd, DB_user
 
 # Connect to Telegram
-from alchemysession import AlchemySessionContainer
 container = AlchemySessionContainer('mysql://{}:{}@{}/{}'.format(
-    DB_user, DB_passwd, DB_host, DB_database_session
+    DB_user, DB_passwd, DB_host, DB_SESSION_DBNAME
 ))
-session = container.new_session('synapticSupport')
+session = container.new_session(TELETHON_SESSION_ID)
 client = TelegramClient(session, api_id, api_hash)
 
 # Create Flask application instance
-from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 ######################
@@ -67,7 +67,7 @@ def joinPublicEntity():
 @app.route('/joinPrivateEntity')
 def joinPrivateEntity():
   hash = request.args.get('hash')
-  print('[/joinchannel] :: Hash {}'.format(hash))
+  print('[/joinPrivateEntity] :: Hash {}'.format(hash))
   try:
     result = client(ImportChatInviteRequest(hash))
     return jsonify(result.chats[0].to_dict())
@@ -98,4 +98,4 @@ if __name__ == "__main__":
   response = client.start()
   print('Logged in as @{}'.format(response.get_me().username))
   app.logger.disabled = True
-  app.run()
+  app.run(port=API_PORT)
