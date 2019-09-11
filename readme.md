@@ -4,6 +4,10 @@
 - Group channels into Thematic feeds
 - Clone all messages from any channel to your own channel
 
+## Get Telegram Api Id and Hash Id
+
+[https://my.telegram.org/auth?to=apps](https://my.telegram.org/auth?to=apps)
+
 # Installation
 
 ## 1. Clone Repository

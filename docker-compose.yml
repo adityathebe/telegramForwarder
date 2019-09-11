@@ -11,6 +11,8 @@ services:
   #     MYSQL_USER: root
   #     MYSQL_PASSWORD: Secret123
   #     MYSQL_DB_NAME: telegramForwarder
+  #     AGENT_PORT: 5500
+  #     AGENT_HOSTNAME: python-agent
   #   depends_on:
   #     - mysql-db
 
@@ -19,10 +21,24 @@ services:
     image: 'telegram-forwarder-python-agent'
     depends_on:
       - mysql-db
+    environment:
+      MYSQL_HOST: mysql-db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Secret123
+      MYSQL_DB_NAME: telegramForwarder
+      TG_API_ID: 257772
+      TG_HASH_ID: 81832dc06e8ec55022033be07bae6525
+      API_PORT: 5500
+    volumes:
+      - ./agent/:/telegram-python-agent
 
 
   mysql-db:
     image: mysql:5.7.27
+    volumes:
+      - ./database-init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       MYSQL_ROOT_PASSWORD: Secret123
       MYSQL_DATABASE: telegramForwarder
+      MYSQL_USER: aditya
+      MYSQL_PASSWORD: aditya-password

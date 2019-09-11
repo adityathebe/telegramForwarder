@@ -7,7 +7,6 @@ bot/config/server.js
 bot/config/telegram.js
 migrate.js
 
-agent/config/main.py
 agent/config/synaptic.py
 *.session
 *.session-journal
