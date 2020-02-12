@@ -1,3 +1,5 @@
+*.db
+
 bot/node_modules
 bot/config/agent.js
 bot/config/agent.js
