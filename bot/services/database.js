@@ -1,19 +1,24 @@
-const path = require('path');
+const config = require('../config/index');
 
-const SQLITE_DB_PATH = path.join(__dirname, '../db', 'database.db');
 const knex = require('knex')({
   client: 'sqlite3',
   connection: {
-    filename: SQLITE_DB_PATH,
+    filename: 'x.db',
   },
   useNullAsDefault: true,
+  // connection: {
+  //   host: config.DB.host,
+  //   user: config.DB.user,
+  //   password: config.DB.password,
+  //   database: config.DB.database,
+  // },
 });
 
 // Create Tables
-knex.schema.hasTable('users').then(hasTable => {
+knex.schema.hasTable('users').then((hasTable) => {
   if (!hasTable) {
     knex.schema
-      .createTable('users', tableBuilder => {
+      .createTable('users', (tableBuilder) => {
         tableBuilder.string('chat_id').primary();
         tableBuilder.string('username').unique();
         tableBuilder.string('ref_code').notNullable();
@@ -22,19 +27,16 @@ knex.schema.hasTable('users').then(hasTable => {
         tableBuilder.integer('quota').defaultTo(0);
 
         // Foreign Key
-        tableBuilder
-          .foreign('ref_by')
-          .references('ref_code')
-          .inTable('user');
+        tableBuilder.foreign('ref_by').references('ref_code').inTable('user');
       })
-      .then(_ => console.log('User table created'));
+      .then((_) => console.log('User table created'));
   }
 });
 
-knex.schema.hasTable('redirections').then(hasTable => {
+knex.schema.hasTable('redirections').then((hasTable) => {
   if (!hasTable) {
     knex.schema
-      .createTable('redirections', tableBuilder => {
+      .createTable('redirections', (tableBuilder) => {
         tableBuilder.increments('id').primary();
         tableBuilder.string('owner').notNullable();
         tableBuilder.string('source').notNullable();
@@ -50,14 +52,14 @@ knex.schema.hasTable('redirections').then(hasTable => {
           .inTable('user')
           .onDelete('cascade');
       })
-      .then(_ => console.log('redirections table created'));
+      .then((_) => console.log('redirections table created'));
   }
 });
 
-knex.schema.hasTable('filters').then(hasTable => {
+knex.schema.hasTable('filters').then((hasTable) => {
   if (!hasTable) {
     knex.schema
-      .createTable('filters', tableBuilder => {
+      .createTable('filters', (tableBuilder) => {
         tableBuilder.increments('id').primary();
         tableBuilder.boolean('audio').notNullable();
         tableBuilder.boolean('video').notNullable();
@@ -75,14 +77,14 @@ knex.schema.hasTable('filters').then(hasTable => {
           .inTable('redirections')
           .onDelete('cascade');
       })
-      .then(_ => console.log('filters table created'));
+      .then((_) => console.log('filters table created'));
   }
 });
 
-knex.schema.hasTable('transformations').then(hasTable => {
+knex.schema.hasTable('transformations').then((hasTable) => {
   if (!hasTable) {
     knex.schema
-      .createTable('transformations', tableBuilder => {
+      .createTable('transformations', (tableBuilder) => {
         tableBuilder.increments('id').primary();
         tableBuilder.integer('redirection_id').notNullable();
         tableBuilder.string('old_phrase').notNullable();
@@ -95,7 +97,7 @@ knex.schema.hasTable('transformations').then(hasTable => {
           .inTable('transformations')
           .onDelete('cascade');
       })
-      .then(_ => console.log('transformations table created'));
+      .then((_) => console.log('transformations table created'));
   }
 });
 

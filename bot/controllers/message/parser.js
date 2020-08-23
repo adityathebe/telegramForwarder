@@ -9,6 +9,7 @@ const validCommands = [
   '/filters',
   '/filter',
   '/transform',
+  '/start',
   '/transforms',
   '/transformrank',
   '/transformremove',

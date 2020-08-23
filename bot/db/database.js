@@ -7,10 +7,7 @@ class Database {
   // USERS //
   ///////////
   getUser(chatId) {
-    return knex('users')
-      .select('*')
-      .where({ chat_id: chatId })
-      .first();
+    return knex('users').select('*').where({ chat_id: chatId }).first();
   }
 
   getAllUsers() {
@@ -32,34 +29,23 @@ class Database {
   }
 
   getUserQuota(chatId) {
-    return knex('user')
-      .select('quote')
-      .where({ chat_id: chatId });
+    return knex('user').select('quote').where({ chat_id: chatId });
   }
 
   //////////////////
   // REDIRECTIONS //
   //////////////////
-
   getRedirections(userId) {
-    return new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM redirections WHERE owner = "${userId}"`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('redirections').select('*').where({ owner: userId });
   }
 
   saveRedirection(owner, source, destination, srcTitle, destTitle) {
-    return new Promise((resolve, reject) => {
-      let sql =
-        'INSERT INTO redirections (owner, source, destination, source_title, destination_title) ';
-      sql += `VALUES("${owner}", "${source}", "${destination}", "${srcTitle}", "${destTitle}"); `;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
+    return knex('redirections').insert({
+      owner,
+      source,
+      destination,
+      source_title: srcTitle,
+      destination_title: destTitle,
     });
   }
 
@@ -105,14 +91,10 @@ class Database {
   saveFilter(redirectionId, filterName, data) {
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`;
-      this.connection.query(
-        sql,
-        [redirectionId, data, data],
-        (error, results) => {
-          if (error) return reject(error);
-          resolve(results);
-        }
-      );
+      this.connection.query(sql, [redirectionId, data, data], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
     });
   }
 
@@ -131,16 +113,11 @@ class Database {
   /////////////////////
   saveTransformation(redirectionId, oldPhrase, newPhrase, rank) {
     return new Promise((resolve, reject) => {
-      const sql =
-        'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);';
-      this.connection.query(
-        sql,
-        [redirectionId, oldPhrase, newPhrase, rank],
-        (error, results) => {
-          if (error) return reject(error);
-          resolve(results);
-        }
-      );
+      const sql = 'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);';
+      this.connection.query(sql, [redirectionId, oldPhrase, newPhrase, rank], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
     });
   }
 
@@ -167,14 +144,10 @@ class Database {
   changeTransformationRank(transformationId, newRank) {
     return new Promise((resolve, reject) => {
       const sql = 'UPDATE transformations SET rank = ? Where id = ?';
-      this.connection.query(
-        sql,
-        [newRank, transformationId],
-        (error, results) => {
-          if (error) return reject(error);
-          resolve(results);
-        }
-      );
+      this.connection.query(sql, [newRank, transformationId], (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
     });
   }
 
@@ -194,9 +167,7 @@ module.exports = new Database();
 
 if (require.main === module) {
   const db = new Database();
-  db.changeUserQuota('1', true)
-    .then(console.log)
-    .catch(console.error);
+  db.changeUserQuota('1', true).then(console.log).catch(console.error);
 
   db.getUser('1').then(console.log);
 }

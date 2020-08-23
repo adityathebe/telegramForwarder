@@ -12,11 +12,14 @@ const config = {
   },
   APP: {
     FREE_USER: {
-      QUOTA_LIMIT: 0,
+      QUOTA_LIMIT: 10,
     },
     PREMIUM_USER: {
       QUOTA_LIMIT: 0,
     },
+  },
+  AGENT: {
+    url: 'http://localhost:8000/',
   },
 };
 

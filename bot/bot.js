@@ -1,5 +1,5 @@
 // @ts-check
-const Events = require('events');
+const EventEmitter = require('events').EventEmitter;
 
 const db = require('./db/database');
 const MessageParser = require('./controllers/message/parser');
@@ -16,24 +16,20 @@ const addRedirection = require('./controllers/addRedirection');
 // const getTransformations = require('../getTransformations');
 // const removeTransformation = require('../removeTransformation');
 
-class CommandHandler extends Events.EventEmitter {}
+class CommandHandler extends EventEmitter {}
 const commandHandler = new CommandHandler();
 
 const bot = require('./services/telegram');
-bot.onText(new RegExp('^/start$'), msgEvent => {
+bot.onText(new RegExp('^/start$'), async (msgEvent) => {
   let reply = 'Welcome to MultiFeed Bot! 🔥\n\n';
   reply += 'Send /help to get usage instructions';
-  bot.sendMessage(msgEvent.chat.id, reply).catch(err => console.log(err));
+  bot.sendMessage(msgEvent.chat.id, reply).catch(console.error);
 
   // Store User to Database
-  return db.saveUser(
-    msgEvent.chat.id,
-    msgEvent.from.username,
-    Math.random() * 1000
-  );
+  await db.saveUser(msgEvent.chat.id, msgEvent.from.username, Math.random() * 1000);
 });
 
-bot.onText(new RegExp('^/help$'), msgEvent => {
+bot.onText(new RegExp('^/help$'), (msgEvent) => {
   let reply = 'Typical workflow in the bot:\n\n';
   reply += '1. You have two links:\n';
   reply += '- `SOURCE` - link to the channel to forward messages FROM';
@@ -53,49 +49,61 @@ bot.onText(new RegExp('^/help$'), msgEvent => {
     .sendMessage(msgEvent.chat.id, reply, {
       parse_mode: 'Markdown',
     })
-    .catch(err => console.log(err));
+    .catch(console.error);
 });
 
-bot.on('message', msgEvent => {
+bot.on('polling_error', console.error);
+
+bot.on('message', (msgEvent) => {
   if (msgEvent.chat.type == 'private') {
     // Parse Command
     // Check Commands with MessageParser
     const isValidCommand = MessageParser.isValidCommand(msgEvent.text);
     if (!isValidCommand) {
       const reply = '❌ Command does not exist.\n\nType /help';
-      return bot
-        .sendMessage(msgEvent.chat.id, reply)
-        .catch(err => console.log(err));
+      return bot.sendMessage(msgEvent.chat.id, reply).catch(console.error);
     }
 
     const command = MessageParser.getCommand(msgEvent.text);
+
+    // Commands that are handled elsewhere
+    if (command === '/help' || command === '/start') return;
+
     const parser = MessageParser.hashMap()[command];
     const parsedMsg = parser(msgEvent.text, msgEvent);
 
     if (parsedMsg.error) {
       const reply = `❌ Error in command : ${parsedMsg.command}\n\n**${parsedMsg.error}**`;
-      return bot
-        .sendMessage(msgEvent.chat.id, reply, { parse_mode: 'Markdown' })
-        .catch(err => console.log(err));
+      return bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'Markdown' }).catch(console.error);
     }
 
-    console.log(parsedMsg);
-    commandHandler.emit(parsedMsg.command, parsedMsg, msgEvent);
+    commandHandler.emit(command, parsedMsg, msgEvent);
   }
 });
 
 commandHandler.on('/add', async (data, msgEvent) => {
+  console.log('Adding redirection');
   try {
-    const addRedirectionResponse = await addRedirection(
-      msgEvent.chat.id,
-      data.source,
-      data.destination
-    );
-    const reply = `New Redirection added with <code>[${addRedirectionResponse.dbResponse.insertId}]</code>`;
-    bot.sendMessage(msgEvent.chat.id, reply).catch(err => console.log(err));
+    const { redirectionId, error } = await addRedirection(msgEvent.chat.id, data.source, data.destination);
+    if (error) {
+      return bot
+        .sendMessage(msgEvent.chat.id, error, {
+          parse_mode: 'HTML',
+        })
+        .catch((e) => console.error(e.message));
+    }
+    const reply = `New Redirection added with <code>[${redirectionId}]</code>`;
+    return bot.sendMessage(msgEvent.chat.id, reply, {
+      parse_mode: 'HTML',
+    });
   } catch (err) {
+    console.error(err);
     const reply = err.message || err || 'Some error occured';
-    bot.sendMessage(msgEvent.chat.id, reply).catch(err => console.log(err));
+    bot
+      .sendMessage(msgEvent.chat.id, reply, {
+        parse_mode: 'HTML',
+      })
+      .catch(console.error);
   }
 });
 

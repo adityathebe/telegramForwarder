@@ -2,7 +2,7 @@ FROM node:lts-jessie
 
 RUN apt-get update 
 
-WORKDIR /usr/src/telegram-forwarder/agent
+WORKDIR /usr/src/telegram-forwarder/bot
 
 COPY package.json .
 

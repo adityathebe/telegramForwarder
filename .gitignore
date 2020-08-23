@@ -13,3 +13,6 @@ agent/config/synaptic.py
 *.session
 *.session-journal
 __pycache__
+
+agent/.venv/
+env
