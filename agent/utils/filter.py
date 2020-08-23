@@ -41,7 +41,7 @@ class MessageFilter:
         active_filter_list = []
         for key, value in filter_dict.items():
             if value != 0 and value is not None:
-                if key is not 'id':
+                if key != 'id':
                     active_filter_list.append(key)
 
         return active_filter_list

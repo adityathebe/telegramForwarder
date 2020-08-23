@@ -1,18 +1,12 @@
-from config.main import DB_host, DB_user, DB_passwd, DB_database
-import mysql.connector
-import sys
-sys.path.append("..")
+import os
+import sqlite3
 
 
 class Database:
     def __init__(self):
-        self.db = mysql.connector.connect(
-            host=DB_host,
-            user=DB_user,
-            passwd=DB_passwd,
-            database=DB_database
-        )
-        self.db.autocommit = True
+        path = os.path.dirname(os.path.abspath(__file__))
+        db = os.path.join(path, '..', '..', 'database', 'database.db')
+        self.db = sqlite3.connect(db)
 
     def get_user(self, user_id):
         cursor = self.db.cursor()
@@ -71,5 +65,10 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
-    r = db.get_transformations_of_redirection('41')
-    print(r)
+    c = db.db.cursor()
+    c.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    print(c.fetchall())
+
+
+    # r = db.get_all_redirections()
+    # print(r)

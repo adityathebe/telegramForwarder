@@ -1,31 +1,35 @@
 import logging
 import telethon
 import hypercorn.asyncio
-from quart import Quart, request
+from quart import Quart, request, Blueprint
 from telethon import TelegramClient, events, sync
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.channels import JoinChannelRequest
-from config.main import api_id, api_hash
+from client import client
 
+from forwarder import forwarder_event_handler
 
 format_str = '[%(levelname)s] %(filename)s:%(lineno)s -- %(message)s'
 logging.basicConfig(level=logging.INFO, format=format_str)
 
 
-client = TelegramClient('telethon', api_id, api_hash)
-
 # Create Flask application instance
 app = Quart(__name__)
 
 
-######################
-# Join Private Users #
-######################
+@app.route('/')
+def index():
+    return "Telethon API is up and running"
+
+
 @app.route('/joinPublicUserEntity')
 async def joinPublicUserEntity():
+    """
+    Join Private Users
+    """
     entity = request.args.get('entity')
 
-    print('[/joinPublicUserEntity] :: Entity Name {}'.format(entity))
+    app.logger.info('[/joinPublicUserEntity] :: Entity Name {}'.format(entity))
     try:
         msg = '/start'
         result = await client.send_message(entity, msg)
@@ -40,7 +44,7 @@ async def joinPublicEntity():
     Join Public Groups & Channels
     """
     entity = request.args.get('entity')
-    print('[/joinPublicEntity] :: Entity Name {}'.format(entity))
+    app.logger.info('[/joinPublicEntity] :: Entity Name {}'.format(entity))
     try:
         result = await client(JoinChannelRequest(entity))
         return result.chats[0].to_dict()
@@ -56,20 +60,15 @@ async def joinPrivateEntity():
     Join Invation Link
     """
     hash = request.args.get('hash')
-    print('[/joinPrivateEntity] :: Hash {}'.format(hash))
+    app.logger.info('[/joinPrivateEntity] :: Hash {}'.format(hash))
     try:
         result = await client(ImportChatInviteRequest(hash))
         return result.chats[0].to_dict()
     except telethon.errors.rpcerrorlist.UserAlreadyParticipantError:
         return {'succes': 'ok'}
     except Exception as exception:
-        print(type(exception))
+        app.logger.error(exception)
         return {'error': str(exception)}
-
-
-@app.route('/')
-def x():
-    return 200
 
 
 @app.route('/getentity', methods=['GET'])
@@ -85,7 +84,7 @@ async def getEntity():
         result = await client.get_entity(entity)
         return result.to_dict()
     except Exception as exception:
-        print(exception)
+        app.logger.error(exception)
         return {'error': str(exception)}
 
 
@@ -106,4 +105,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    client.on(events.NewMessage)(forwarder_event_handler)
     client.loop.run_until_complete(main())

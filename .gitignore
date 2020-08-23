@@ -12,6 +12,7 @@ migrate.js
 agent/config/synaptic.py
 *.session
 *.session-journal
+*.db-journal
 __pycache__
 
 agent/.venv/
