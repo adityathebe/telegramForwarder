@@ -1,17 +1,11 @@
-const config = require('../config/index');
+const path = require('path');
 
 const knex = require('knex')({
   client: 'sqlite3',
   connection: {
-    filename: 'x.db',
+    filename: `${path.join(__dirname, '../../', 'database', 'database.db')}`,
   },
   useNullAsDefault: true,
-  // connection: {
-  //   host: config.DB.host,
-  //   user: config.DB.user,
-  //   password: config.DB.password,
-  //   database: config.DB.database,
-  // },
 });
 
 // Create Tables
@@ -46,11 +40,7 @@ knex.schema.hasTable('redirections').then((hasTable) => {
         tableBuilder.boolean('active').defaultTo(false);
 
         // Foreign Key
-        tableBuilder
-          .foreign('owner', 'redirections_fk0')
-          .references('chat_id')
-          .inTable('user')
-          .onDelete('cascade');
+        tableBuilder.foreign('owner', 'redirections_fk0').references('chat_id').inTable('user').onDelete('cascade');
       })
       .then((_) => console.log('redirections table created'));
   }
@@ -71,11 +61,7 @@ knex.schema.hasTable('filters').then((hasTable) => {
         tableBuilder.string('contain').defaultTo(false);
         tableBuilder.string('notcontain').defaultTo(false);
 
-        tableBuilder
-          .foreign('id')
-          .references('id')
-          .inTable('redirections')
-          .onDelete('cascade');
+        tableBuilder.foreign('id').references('id').inTable('redirections').onDelete('cascade');
       })
       .then((_) => console.log('filters table created'));
   }
@@ -91,11 +77,7 @@ knex.schema.hasTable('transformations').then((hasTable) => {
         tableBuilder.string('new_phrase').notNullable();
         tableBuilder.integer('rank').notNullable();
 
-        tableBuilder
-          .foreign('redirection_id')
-          .references('id')
-          .inTable('transformations')
-          .onDelete('cascade');
+        tableBuilder.foreign('redirection_id').references('id').inTable('transformations').onDelete('cascade');
       })
       .then((_) => console.log('transformations table created'));
   }
