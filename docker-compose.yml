@@ -4,41 +4,31 @@ services:
   node-bot:
     build: ./bot
     image: telegram-forwarder-node-bot
+    environment:
+      AGENT_PORT: 3000
+      AGENT_HOSTNAME: python-agent
+      TG_API_KEY: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      DB_HOST: postgres-db
+      NTBA_FIX_319: 1
+    depends_on:
+      - postgres-db
+
+  python-agent:
+    build: './agent'
+    image: 'telegram-forwarder-python-agent'
+    depends_on:
+      - postgres-db
+    environment:
+      API_PORT: 3000
+      TG_API_ID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      TG_HASH_ID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      DB_HOST: postgres-db
     ports:
       - '3000:3000'
-    environment:
-      MYSQL_HOST: mysql-db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: Secret123
-      MYSQL_DB_NAME: telegramForwarder
-      AGENT_PORT: 5500
-      AGENT_HOSTNAME: python-agent
-      TG_API_KEY: 528287339:AAH3n8DuxnV8uVEvaHbXOuf0iWdM_QPCRwQ
-    depends_on:
-      - mysql-db
 
-  # python-agent:
-  #   build: './agent'
-  #   image: 'telegram-forwarder-python-agent'
-  #   depends_on:
-  #     - mysql-db
-  #   environment:
-  #     MYSQL_HOST: mysql-db
-  #     MYSQL_USER: root
-  #     MYSQL_PASSWORD: Secret123
-  #     MYSQL_DB_NAME: telegramForwarder
-  #     TG_API_ID: 257772
-  #     TG_HASH_ID: 81832dc06e8ec55022033be07bae6525
-  #     API_PORT: 5500
-  #   volumes:
-  #     - ./agent/:/telegram-python-agent
-
-  mysql-db:
-    image: mysql:5.7.27
-    ports:
-      - 3306:3306
+  postgres-db:
+    image: postgres:alpine
     environment:
-      MYSQL_ROOT_PASSWORD: Secret123
-      MYSQL_DATABASE: telegramForwarder
-      MYSQL_USER: aditya
-      MYSQL_PASSWORD: aditya-password
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
