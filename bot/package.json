@@ -19,6 +19,7 @@
     "knex": "^0.20.9",
     "mysql": "^2.18.1",
     "node-telegram-bot-api": "^0.40.0",
+    "pg": "^8.3.2",
     "request": "^2.88.0",
     "sqlite3": "^4.2.0"
   }

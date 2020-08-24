@@ -1,3 +1,4 @@
+/* An agent that communicates with the python rest api */
 const request = require('request');
 const AGENT_URL = require('../config/index').AGENT.url;
 
@@ -104,6 +105,7 @@ class ForwardAgent {
           throw new Error(resp.error);
         }
       } catch (err) {
+        console.error({ err });
         return reject(err);
       }
     });

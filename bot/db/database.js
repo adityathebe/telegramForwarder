@@ -15,17 +15,16 @@ class Database {
   }
 
   saveUser(chatId, username, refCode) {
-    return knex('users').insert({
-      chat_id: chatId,
-      ref_code: refCode,
+    return knex.raw(`INSERT INTO users (chat_id, username, ref_code) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, [
+      chatId,
       username,
-    });
+      refCode,
+    ]);
   }
 
-  changeUserQuota(chatId, shouldIncrease) {
-    const change = shouldIncrease ? 1 : -1;
-    const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ${chatId}`;
-    return knex.raw(sql);
+  changeUserQuota(chatId, change = 1) {
+    const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ?`;
+    return knex.raw(sql, [chatId]);
   }
 
   getUserQuota(chatId) {
@@ -40,6 +39,13 @@ class Database {
   }
 
   saveRedirection(owner, source, destination, srcTitle, destTitle) {
+    console.log({
+      owner,
+      source,
+      destination,
+      source_title: srcTitle,
+      destination_title: destTitle,
+    });
     return knex('redirections').insert({
       owner,
       source,
@@ -167,7 +173,6 @@ module.exports = new Database();
 
 if (require.main === module) {
   const db = new Database();
-  db.changeUserQuota('1', true).then(console.log).catch(console.error);
-
-  db.getUser('1').then(console.log);
+  // db.changeUserQuota('xxx', 100).then(console.log).catch(console.error);
+  // db.getUser('xxx').then(console.log);
 }

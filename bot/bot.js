@@ -84,7 +84,7 @@ bot.on('message', (msgEvent) => {
 commandHandler.on('/add', async (data, msgEvent) => {
   console.log('Adding redirection');
   try {
-    const { redirectionId, error } = await addRedirection(msgEvent.chat.id, data.source, data.destination);
+    const { error } = await addRedirection(msgEvent.chat.id, data.source, data.destination);
     if (error) {
       return bot
         .sendMessage(msgEvent.chat.id, error, {
@@ -92,7 +92,7 @@ commandHandler.on('/add', async (data, msgEvent) => {
         })
         .catch((e) => console.error(e.message));
     }
-    const reply = `New Redirection added with <code>[${redirectionId}]</code>`;
+    const reply = `✔ New Redirection added`;
     return bot.sendMessage(msgEvent.chat.id, reply, {
       parse_mode: 'HTML',
     });
@@ -100,7 +100,7 @@ commandHandler.on('/add', async (data, msgEvent) => {
     console.error(err);
     const reply = err.message || err || 'Some error occured';
     bot
-      .sendMessage(msgEvent.chat.id, reply, {
+      .sendMessage(msgEvent.chat.id, '❌ ' + reply, {
         parse_mode: 'HTML',
       })
       .catch(console.error);

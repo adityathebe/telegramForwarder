@@ -126,10 +126,9 @@ const addRedirection = async (sender, source, destination) => {
   const destId = destinationEntity.entity.chatId;
   const srcTitle = sourceEntity.entity.title;
   const destTitle = destinationEntity.entity.title;
-  const dbResponse = await database.saveRedirection(sender, srcId, destId, srcTitle, destTitle);
-  await database.changeUserQuota(sender, true);
-
-  return { redirectionId: dbResponse };
+  await database.saveRedirection(sender, srcId, destId, srcTitle, destTitle);
+  await database.changeUserQuota(sender);
+  return { success: true };
 };
 
 module.exports = addRedirection;
