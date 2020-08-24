@@ -18,3 +18,4 @@ __pycache__
 agent/.venv/
 env
 docker-compose-dev.yml
+.env

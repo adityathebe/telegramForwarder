@@ -7,7 +7,7 @@ services:
     environment:
       AGENT_PORT: 3000
       AGENT_HOSTNAME: python-agent
-      TG_API_KEY: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      TG_API_KEY: '${TG_API_KEY}'
       DB_HOST: postgres-db
       NTBA_FIX_319: 1
     depends_on:
@@ -20,8 +20,8 @@ services:
       - postgres-db
     environment:
       API_PORT: 3000
-      TG_API_ID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-      TG_HASH_ID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      TG_API_ID: '${TG_API_ID}'
+      TG_HASH_ID: '${TG_HASH_ID}'
       DB_HOST: postgres-db
     ports:
       - '3000:3000'
