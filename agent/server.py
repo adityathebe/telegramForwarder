@@ -1,15 +1,14 @@
 import logging
 import telethon
 import hypercorn.asyncio
-from quart import Quart, request, Blueprint
-from telethon import TelegramClient, events, sync
+from quart import Quart, request, render_template_string
+from telethon import TelegramClient, events
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.channels import JoinChannelRequest
 from client import telegram_client
 from config import API_PORT
 from forwarder import forwarder_event_handler
 
-print("API_PORT", API_PORT)
 format_str = '[%(levelname)s] %(filename)s:%(lineno)s -- %(message)s'
 logging.basicConfig(level=logging.INFO, format=format_str)
 
@@ -91,14 +90,64 @@ async def getEntity():
 
 @app.before_serving
 async def startup():
-    await telegram_client.start()
-    user = await telegram_client.get_me()
-    app.logger.info('Logged in as @{}'.format(user.username))
+    await telegram_client.connect()
 
 
 @app.after_serving
 async def cleanup():
     await telegram_client.disconnect()
+
+BASE_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Telethon + Quart</title>
+    </head>
+    <body>{{ content | safe }}</body>
+</html>
+'''
+
+PHONE_FORM = '''
+<form action='/login' method='post'>
+    Phone (international format): <input name='phone' type='text' placeholder='+34600000000'>
+    <input type='submit'>
+</form>
+'''
+
+CODE_FORM = '''
+<form action='/login' method='post'>
+    Telegram code: <input name='code' type='text' placeholder='70707'>
+    <input type='submit'>
+</form>
+'''
+
+phone = None
+@app.route('/login', methods=['GET', 'POST'])
+async def root():
+    # We want to update the global phone variable to remember it
+    global phone
+
+    # Check form parameters (phone/code)
+    form = await request.form
+    if 'phone' in form:
+        phone = form['phone']
+        await telegram_client.send_code_request(phone)
+
+    if 'code' in form:
+        await telegram_client.sign_in(code=form['code'])
+
+    # If we're logged in, show them some messages from their first dialog
+    if await telegram_client.is_user_authorized():
+        user = await telegram_client.get_me()
+        return f'Logged in as @{user.username}'
+
+    # Ask for the phone if we don't know it yet
+    if phone is None:
+        return await render_template_string(BASE_TEMPLATE, content=PHONE_FORM)
+
+    # We have the phone, but we're not logged in, so ask for the code
+    return await render_template_string(BASE_TEMPLATE, content=CODE_FORM)
 
 
 async def main():

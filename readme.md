@@ -4,130 +4,95 @@
 - Group channels into Thematic feeds
 - Clone all messages from any channel to your own channel
 
-## Get Telegram Api Id and Hash Id
+# Pre Installation
 
-[https://my.telegram.org/auth?to=apps](https://my.telegram.org/auth?to=apps)
+Get your Telegram Api Id and Hash Id from here [https://my.telegram.org/auth?to=apps](https://my.telegram.org/auth?to=apps)
+
+![](https://i.imgur.com/KJ1kDDO.png)
 
 # Installation
 
-## 1. Clone Repository
+Clone the repository
 
 ```bash
-sudo apt update && sudo apt upgrade
 git clone https://github.com/adityathebe/telegramForwarder.git
 ```
 
-## 2. Install Mysql server && Create Databases
+## 1. Docker (Recommended)
 
-```bash
-sudo apt-get install mysql-server
-sudo apt-get install libmysqlclient-dev
-mysql_secure_installation
+The `docker-compose` file requires few environment variables. Create a `.env` file in the root directory. Docker compose will automatically pull the required environment variables from this file. Here's an example of my `.env` file
+
+```docker
+TG_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+TG_API_ID=XXXX
+TG_HASH_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
-#### Create the required Databases && Tables
+With that set up you're ready to go !
+
 ```bash
-mysql -u root -p
-# Run the commands on bot/db/init.sql
+docker-compose up
 ```
 
-#### Manage permission for mysql root user
+> Things might go wrong the first time you run this command. If that happens, stop the process and re-run the command
+
+## 2. Manual
+
+### 1. Install Python Packages
+
 ```bash
-$ mysql -u root -p
-
-mysql> USE mysql;
-mysql> UPDATE user SET plugin='mysql_native_password' WHERE User='root';
-mysql> FLUSH PRIVILEGES;
-mysql> exit;
-
-$ service mysql restart
-```
-
-> **NOTE**: Might need to run `mysql_secure_installation` command after this 
-
-
-## 3. Install Python and required Packages
-```bash
-sudo apt install python3
-sudo apt install python3-pip
 cd agent
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-## 4. Install Nodejs and required Pacakges
+### 2. Install Nodejs Packages
+
 ```bash
-sudo apt install nodejs
-sudo apt install npm
 cd bot
-npm install -g pm2
 npm install
 ```
 
-## 5. Run the bot
+### 3. Install and setup postgress
 
-Before running the node scripts, we need to configure the config files `bot/config/*`
-Take a look at the samples `bot/config/sample-*.js`
+Install the postgres server and create a new database named `telegram`.
 
-```bash
-cd bot
-pm2 start app.js
-```
+### 4. Run everything
 
-## 6. Run the python forwarder and Flask server
+# Post Installation
 
-Before running the python scripts, we need to configure the config file `agent/config/main.py`.
-Take a look at the sample `agent/config/config-sample.py`
+Once you get the database, python agent and node server running, you need to login with the telegram account that you want to use as the forwarder agent.
 
-```bash
-tmux new -s telethon
-
-# Open two tmux panes
-ctrl + b + %
-
-# Run server
-cd agent/api
-python3 server.py
-
-# Run Forwarder
-Ctrl + b + RIGHT ARROW
-cd agent/forwarder
-python3 forwarder.py
-
-# Detach from session
-Ctrl + b + d
-```
+Visit [http://localhost:3000/login](http://localhost:3000/login) to login
 
 # Issues
 
 - [x] Join private entities via invitation link
 - [x] Duplicate redirection
-- [x] Shareable session
 - [ ] Multiple Worker Agents
 - [ ] utf8 encoding mysql database
 
 ### FAQ:
 
 -Q: How to start using the bot?  
-A: Send /start command to the bot and follow the instructions. 
+A: Send /start command to the bot and follow the instructions.
 
 Q: Does the bot need admin permissions in a channel/group it forwards from?  
-A: No. 
+A: No.
 
 Q: Does the bot need admin permissions in a channel/group it forwards to?  
-A: Yes. 
+A: Yes.
 
 Q: Can I filter out ads or media content (videos, stickers, etc.)?  
-A: Yes. 
+A: Yes.
 
 Q: Can I set up automatic forwarding from another bot?  
-A: Yes. 
+A: Yes.
 
-Q: I don't have a link of a chat/group. Can I still setup forwarding from it? 
-A: Yes. 
+Q: I don't have a link of a chat/group. Can I still setup forwarding from it?
+A: Yes.
 
 Q: Can I clone all the messages from some channel to my own channel?  
-A: Yes. 
+A: Yes.
 
 Q: How to setup a Private bot plan?  
-A: Contact our support for details or leave your contact in the form below. 
-
+A: Contact our support for details or leave your contact in the form below.

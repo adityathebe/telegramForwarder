@@ -1,6 +1,7 @@
 import psycopg2
 from config import DB_HOST
 
+
 class Database:
     def __init__(self):
         self.db = psycopg2.connect(
@@ -59,9 +60,3 @@ class Database:
         result = cursor.fetchall()
         cursor.close()
         return result
-
-
-if __name__ == "__main__":
-    db = Database()
-    r = db.get_active_redirections_of_source("1461282167")
-    print(r)
