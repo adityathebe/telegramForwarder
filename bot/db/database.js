@@ -1,131 +1,63 @@
-const mysql = require('mysql');
-const DB_CONFIG = require('../config').DB;
+const knex = require('../services/database');
 
 class Database {
-  constructor() {
-    this.connection = mysql.createConnection({
-      host: DB_CONFIG.host,
-      user: DB_CONFIG.user,
-      password: DB_CONFIG.password,
-      database: DB_CONFIG.database,
-    });
-
-    this.connection.connect(function(err, data) {
-      if (err) {
-        throw new Error('Error connecting: ' + err.stack);
-      }
-
-      console.log(`Connected to Database. Server status ${data.serverStatus}`);
-    });
-  }
+  constructor() {}
 
   ///////////
   // USERS //
   ///////////
-
   getUser(chatId) {
-    return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT * FROM users WHERE chat_id = ${chatId}`, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('users').select('*').where({ chat_id: chatId }).first();
   }
 
   getAllUsers() {
-    return new Promise((resolve, reject) => {
-      this.connection.query('SELECT * FROM users', (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('users').select('*');
   }
 
   saveUser(chatId, username, refCode) {
-    return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO users (chat_id, username, ref_code) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE chat_id=chat_id;`;
-      this.connection.query(sql, [chatId, username, refCode], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw(`INSERT INTO users (chat_id, username, ref_code) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, [
+      chatId,
+      username,
+      refCode,
+    ]);
   }
 
-  changeUserQuota(userId, shouldIncrease) {
-    return new Promise((resolve, reject) => {
-      const change = shouldIncrease ? 1 : -1;
-      const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ${userId}`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+  changeUserQuota(chatId, change = 1) {
+    const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ?`;
+    return knex.raw(sql, [chatId]);
   }
 
-  getUserQuota(userId) {
-    return new Promise((resolve, reject) => {
-      const sql = `SELECT quota FROM users WHERE chat_id = "${userId}"`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        if (results.length === 0) return reject(new Error('User does not exist'));
-        resolve(results[0].quota);
-      });
-    });
+  getUserQuota(chatId) {
+    return knex('user').select('quote').where({ chat_id: chatId });
   }
 
   //////////////////
   // REDIRECTIONS //
   //////////////////
-
   getRedirections(userId) {
-    return new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM redirections WHERE owner = "${userId}"`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('redirections').select('*').where({ owner: userId });
   }
 
   saveRedirection(owner, source, destination, srcTitle, destTitle) {
-    return new Promise((resolve, reject) => {
-      let sql = 'INSERT INTO redirections (owner, source, destination, source_title, destination_title) ';
-      sql += `VALUES("${owner}", "${source}", "${destination}", "${srcTitle}", "${destTitle}"); `;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
+    return knex('redirections').insert({
+      owner,
+      source,
+      destination,
+      source_title: srcTitle,
+      destination_title: destTitle,
     });
   }
 
   removeRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `DELETE FROM redirections WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('DELETE FROM redirections WHERE id = ?', [redirectionId]);
   }
 
   activateRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE redirections SET active = 1 WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('UPDATE redirections SET active = ? WHERE id = ?', [1, redirectionId]);
   }
 
   deactivateRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE redirections SET active = 0 WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('UPDATE redirections SET active = ? WHERE id = ?', [0, redirectionId]);
   }
 
   /////////////
@@ -138,6 +70,12 @@ class Database {
    * @param {} data filter state or filter keywords
    */
   saveFilter(redirectionId, filterName, data) {
+    console.log({ redirectionId, filterName, data });
+    return knex.raw(`INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET ${filterName} = ?`, [
+      redirectionId,
+      data,
+      data,
+    ]);
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`;
       this.connection.query(sql, [redirectionId, data, data], (error, results) => {
@@ -211,15 +149,11 @@ class Database {
   }
 }
 
-const db = new Database();
-
-module.exports = db;
+// Single Ton
+module.exports = new Database();
 
 if (require.main === module) {
-  async function main() {
-    const transformations = await db.getTransformation(1);
-    console.log(transformations);
-  }
-
-  main();
+  const db = new Database();
+  // db.changeUserQuota('xxx', 100).then(console.log).catch(console.error);
+  // db.getUser('xxx').then(console.log);
 }

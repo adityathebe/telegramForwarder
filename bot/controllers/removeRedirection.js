@@ -8,13 +8,13 @@ const removeRedirection = async (sender, redirectionId) => {
       /////////////////////////////////////////////
       const redirections = await database.getRedirections(sender);
       let redirectionOfInterest = redirections.filter((redirection) => redirection.id == redirectionId)
-      if (redirectionOfInterest.length === 0) throw Error('Redirection doesnot exist');
+      if (redirectionOfInterest.length === 0) throw Error('Redirection does not exist');
 
       ////////////////////////
       // Update to database //
       ////////////////////////
       const dbResponse = await database.removeRedirection(redirectionId);
-      await database.changeUserQuota(sender, false);
+      await database.changeUserQuota(sender, -1);
       return resolve({ dbResponse });
     } catch (err) {
       console.log(`[Error removeRedirection.js] :: ${err}`);
