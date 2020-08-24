@@ -39,13 +39,6 @@ class Database {
   }
 
   saveRedirection(owner, source, destination, srcTitle, destTitle) {
-    console.log({
-      owner,
-      source,
-      destination,
-      source_title: srcTitle,
-      destination_title: destTitle,
-    });
     return knex('redirections').insert({
       owner,
       source,
@@ -56,33 +49,15 @@ class Database {
   }
 
   removeRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `DELETE FROM redirections WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('DELETE FROM redirections WHERE id = ?', [redirectionId]);
   }
 
   activateRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE redirections SET active = 1 WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('UPDATE redirections SET active = ? WHERE id = ?', [1, redirectionId]);
   }
 
   deactivateRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE redirections SET active = 0 WHERE id = "${redirectionId}";`;
-      this.connection.query(sql, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('UPDATE redirections SET active = ? WHERE id = ?', [0, redirectionId]);
   }
 
   /////////////

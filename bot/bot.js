@@ -8,11 +8,11 @@ const MessageParser = require('./controllers/message/parser');
 // const addFilter = require('../addFilter');
 // const getFilter = require('../getFilter');
 const addRedirection = require('./controllers/addRedirection');
+const activateRedirection = require('./controllers/activateRedirection');
+const removeRedirection = require('./controllers/removeRedirection');
+const deactivateRedirection = require('./controllers/deactivateRedirection');
 // const addTransformation = require('../addTransformation');
 // const swapTransformationRank = require('../swapTransformationRank');
-// const removeRedirection = require('../removeRedirection');
-// const activateRedirection = require('../activateRedirection');
-// const deactivateRedirection = require('../deactivateRedirection');
 // const getTransformations = require('../getTransformations');
 // const removeTransformation = require('../removeTransformation');
 
@@ -107,65 +107,62 @@ commandHandler.on('/add', async (data, msgEvent) => {
   }
 });
 
-// const handlePrivateMessage = async (sender, messageEvent) => {
-//   const username = messageEvent.from.username;
-//   const message = messageEvent.text;
-//   const forwarded = messageEvent.forward_from_chat;
+commandHandler.on('/activate', async (data, msgEvent) => {
+  console.log('Activating redirection');
+  try {
+    await activateRedirection(msgEvent.chat.id, data.redirectionId);
+    const reply = `Redirection activated <code>[${data.redirectionId}]</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  } catch (err) {
+    const reply = err.message || err || 'Some error occured';
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  }
+});
 
-//   console.log(`\nPRIVATE MESSAGE: ${username} - ${message}`);
+commandHandler.on('/list', async (data, msgEvent) => {
+  try {
+    const redirections = await db.getRedirections(msgEvent.chat.id);
+    if (redirections.length === 0) {
+      return bot
+        .sendMessage(msgEvent.chat.id, 'You have no redirections', { parse_mode: 'HTML' })
+        .catch((err) => console.log(err));
+    }
 
-//   if (command === '/add') {
-//
-//   } else if (command === '/remove') {
-//     try {
-//       const removeRedirectionResponse = await removeRedirection(
-//         sender,
-//         parsedMsg.redirectionId
-//       );
-//       const reply = `Redirection removed <code>[${parsedMsg.redirectionId}]</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   } else if (command === '/activate') {
-//     try {
-//       await activateRedirection(sender, parsedMsg.redirectionId);
-//       const reply = `Redirection activated <code>[${parsedMsg.redirectionId}]</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   } else if (command === '/deactivate') {
-//     try {
-//       await deactivateRedirection(sender, parsedMsg.redirectionId);
-//       const reply = `Redirection deactivated <code>[${parsedMsg.redirectionId}]</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   } else if (command === '/list') {
-//     try {
-//       const redirections = await db.getRedirections(sender);
-//       if (redirections.length === 0) {
-//         return bot
-//           .send_message(sender, 'You have no redirections')
-//           .catch(err => console.log(err));
-//       }
+    let reply = '';
+    redirections.forEach((redirection) => {
+      let state = redirection.active == 1 ? '🔵' : '🔴';
+      reply += `--- ${state} <code>[${redirection.id}]</code> ${redirection.source_title} => ${redirection.destination_title}\n`;
+    });
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch((err) => console.log(err));
+  } catch (err) {
+    console.log(err);
+    bot.sendMessage(msgEvent.chat.id, err, { parse_mode: 'HTML' });
+  }
+});
 
-//       let reply = '';
-//       redirections.forEach(redirection => {
-//         let state = redirection.active == 1 ? '🔵' : '🔴';
-//         reply += `--- ${state} <code>[${redirection.id}]</code> ${redirection.source_title} => ${redirection.destination_title}\n`;
-//       });
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       console.log(err);
-//       bot.send_message(sender, err);
-//     }
-//   } else if (command === '/filter') {
+commandHandler.on('/deactivate', async (data, msgEvent) => {
+  try {
+    await deactivateRedirection(msgEvent.chat.id, data.redirectionId);
+    const reply = `Redirection deactivated <code>[${data.redirectionId}]</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  } catch (err) {
+    const reply = err.message || err || 'Some error occured';
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  }
+});
+
+commandHandler.on('/remove', async (data, msgEvent) => {
+  try {
+    await removeRedirection(msgEvent.chat.id, data.redirectionId);
+    const reply = `Redirection removed <code>[${data.redirectionId}]</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  } catch (err) {
+    const reply = err.message || err || 'Some error occured';
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  }
+});
+
+//   if (command === '/filter') {
 //     try {
 //       const response = await addFilter(sender, parsedMsg);
 //       let reply = `✅ Command Success.\n\n<code>`;
