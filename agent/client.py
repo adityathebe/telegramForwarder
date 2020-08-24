@@ -1,4 +1,4 @@
 from telethon import TelegramClient, events, sync
-from config.main import api_id, api_hash
+from config import api_id, api_hash
 
-client = TelegramClient('../database/telethon', api_id, api_hash)
+telegram_client = TelegramClient('telethon', api_id, api_hash)

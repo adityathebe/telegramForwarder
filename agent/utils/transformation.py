@@ -1,6 +1,4 @@
 from db.database import Database
-import sys
-sys.path.append("..")
 
 # Connect to database
 database = Database()

@@ -1,2 +1,3 @@
 Quart==0.13.0
 Telethon==1.16.2
+psycopg2==2.8.5

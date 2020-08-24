@@ -1,8 +1,7 @@
+import logging
 from db.database import Database
-import sys
-sys.path.append("..")
 
-# Connect to database
+logger = logging.getLogger('Filter')
 database = Database()
 
 
@@ -90,7 +89,7 @@ class MessageFilter:
         # Get Filter dictionary from database
         filter_dict = MessageFilter.get_filter(filter_id)
         if filter_dict == False:
-            print('No filters for id : {}'.format(filter_id))
+            logger.info('No filters for id : {}'.format(filter_id))
             return False
 
         # Get Active Filter list
@@ -101,11 +100,11 @@ class MessageFilter:
         msg_text = message_event.message.text.lower()
 
         if msg_type in filter_list:
-            print('Filter caught :: {}'.format(msg_type))
+            logger.info(f'Filter caught :: {msg_type}')
             return True
 
         if 'contain' not in filter_list and 'notcontain' not in filter_list:
-            print('All filters passed.')
+            logger.info('All filters passed.')
             return False
 
         # Assume message does not contain the required word
@@ -132,7 +131,7 @@ class MessageFilter:
                     contains_blacklist_word = True
                     break
 
-        print('Contains word :: {} && Contains Blacklist :: {}'.format(
+        logger.info('Contains word :: {} && Contains Blacklist :: {}'.format(
             contains_required_word, contains_blacklist_word))
         return (not contains_required_word) or contains_blacklist_word
 

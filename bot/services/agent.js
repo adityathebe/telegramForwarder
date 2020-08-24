@@ -1,6 +1,8 @@
 /* An agent that communicates with the python rest api */
 const request = require('request');
-const AGENT_URL = require('../config/index').AGENT.url;
+const { AGENT_HOSTNAME, AGENT_PORT } = require('../config');
+
+const AGENT_URL = `http://${AGENT_HOSTNAME}:${AGENT_PORT}/`;
 
 const _sendRequest = (endpoint) => {
   return new Promise((resolve, reject) => {

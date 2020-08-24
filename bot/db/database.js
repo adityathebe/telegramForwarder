@@ -70,6 +70,12 @@ class Database {
    * @param {} data filter state or filter keywords
    */
   saveFilter(redirectionId, filterName, data) {
+    console.log({ redirectionId, filterName, data });
+    return knex.raw(`INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET ${filterName} = ?`, [
+      redirectionId,
+      data,
+      data,
+    ]);
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`;
       this.connection.query(sql, [redirectionId, data, data], (error, results) => {

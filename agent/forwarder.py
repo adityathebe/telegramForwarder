@@ -1,6 +1,6 @@
-import logging
 import json
-from client import client
+import logging
+from client import telegram_client
 from db.database import Database
 from utils.filter import MessageFilter
 from utils.transformation import MessageTransformation
@@ -41,8 +41,8 @@ async def forwarder_event_handler(event):
     logger.info(f'Sender : {sender_id}')
 
     # Mark as read (Optional)
-    user_entity = await client.get_input_entity(sender_id)
-    await client.send_read_acknowledge(user_entity, max_id=event.original_update.pts)
+    user_entity = await telegram_client.get_input_entity(sender_id)
+    await telegram_client.send_read_acknowledge(user_entity, max_id=event.original_update.pts)
 
     # Get all Receivers of given userid
     try:
@@ -69,14 +69,14 @@ async def forwarder_event_handler(event):
                     return
 
                 if has_media:
-                    await client.send_file(destination, event.media)
+                    await telegram_client.send_file(destination, event.media)
                 else:
                     transformed_message = MessageTransformation.get_transformed_msg(
                         event, redirection_id)
-                    await client.send_message(destination, transformed_message)
+                    await telegram_client.send_message(destination, transformed_message)
 
             else:
-                await client.forward_messages(destination, event.message.id, sender_id)
+                await telegram_client.forward_messages(destination, event.message.id, sender_id)
             logger.info(f'Message sent to {destination}')
 
     except Exception as err:

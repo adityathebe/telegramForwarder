@@ -1,21 +1,17 @@
-import os
 import psycopg2
-
+from config import DB_HOST
 
 class Database:
     def __init__(self):
         self.db = psycopg2.connect(
-            host="localhost",
+            host=DB_HOST,
             database="telegram",
             user="postgres",
             password="mysecretpassword")
-        # path = os.path.dirname(os.path.abspath(__file__))
-        # db = os.path.join(path, '..', '..', 'database', 'database.db')
-        # self.db = sqlite3.connect(db)
 
     def get_user(self, user_id):
         cursor = self.db.cursor()
-        sql = "SELECT * FROM users WHERE chat_id = {};".format(user_id)
+        sql = f"SELECT * FROM users WHERE chat_id = '{user_id}'"
         cursor.execute(sql)
         result = cursor.fetchone()
         cursor.close()
@@ -23,8 +19,7 @@ class Database:
 
     def get_active_redirections_of_source(self, source):
         cursor = self.db.cursor()
-        sql = "SELECT * FROM redirections WHERE source = {} AND active = 1;".format(
-            source)
+        sql = f"SELECT * FROM redirections WHERE source = '{source}' AND active = TRUE"
         cursor.execute(sql)
         result = cursor.fetchall()
         cursor.close()
@@ -35,8 +30,7 @@ class Database:
         Get redirection of given redirection id
         """
         cursor = self.db.cursor()
-        sql = "SELECT * FROM redirections WHERE id = {} AND active = 1;".format(
-            redirection_id)
+        sql = f"SELECT * FROM redirections WHERE id = '{redirection_id}' AND active = 1"
         cursor.execute(sql)
         result = cursor.fetchall()
         cursor.close()
@@ -52,7 +46,7 @@ class Database:
 
     def get_filter(self, filter_id):
         cursor = self.db.cursor()
-        sql = "SELECT * FROM filters WHERE id = {};".format(filter_id)
+        sql = f"SELECT * FROM filters WHERE id = {filter_id}"
         cursor.execute(sql)
         result = cursor.fetchone()
         cursor.close()
@@ -60,8 +54,7 @@ class Database:
 
     def get_transformations_of_redirection(self, redirection_id):
         cursor = self.db.cursor()
-        sql = "SELECT * FROM transformations WHERE redirection_id = {} ORDER BY rank;".format(
-            redirection_id)
+        sql = f"SELECT * FROM transformations WHERE redirection_id = {redirection_id} ORDER BY rank"
         cursor.execute(sql)
         result = cursor.fetchall()
         cursor.close()
@@ -70,5 +63,5 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
-    r = db.get_all_redirections()
+    r = db.get_active_redirections_of_source("1461282167")
     print(r)

@@ -5,10 +5,11 @@ from quart import Quart, request, Blueprint
 from telethon import TelegramClient, events, sync
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.channels import JoinChannelRequest
-from client import client
-
+from client import telegram_client
+from config import API_PORT
 from forwarder import forwarder_event_handler
 
+print("API_PORT", API_PORT)
 format_str = '[%(levelname)s] %(filename)s:%(lineno)s -- %(message)s'
 logging.basicConfig(level=logging.INFO, format=format_str)
 
@@ -32,7 +33,7 @@ async def joinPublicUserEntity():
     app.logger.info('[/joinPublicUserEntity] :: Entity Name {}'.format(entity))
     try:
         msg = '/start'
-        result = await client.get_entity(entity)
+        result = await telegram_client.get_entity(entity)
         return result.to_dict()
     except Exception as exception:
         return {'error': str(exception)}
@@ -46,7 +47,7 @@ async def joinPublicEntity():
     entity = request.args.get('entity')
     app.logger.info('[/joinPublicEntity] :: Entity Name {}'.format(entity))
     try:
-        result = await client(JoinChannelRequest(entity))
+        result = await telegram_client(JoinChannelRequest(entity))
         return result.chats[0].to_dict()
     except telethon.errors.rpcerrorlist.UserAlreadyParticipantError:
         return {'success': 'ok'}
@@ -62,7 +63,7 @@ async def joinPrivateEntity():
     hash = request.args.get('hash')
     app.logger.info('[/joinPrivateEntity] :: Hash {}'.format(hash))
     try:
-        result = await client(ImportChatInviteRequest(hash))
+        result = await telegram_client(ImportChatInviteRequest(hash))
         return result.chats[0].to_dict()
     except telethon.errors.rpcerrorlist.UserAlreadyParticipantError:
         return {'succes': 'ok'}
@@ -81,7 +82,7 @@ async def getEntity():
 
     app.logger.info('[/getentity] :: Entity Name {}'.format(entity))
     try:
-        result = await client.get_entity(entity)
+        result = await telegram_client.get_entity(entity)
         return result.to_dict()
     except Exception as exception:
         app.logger.error(exception)
@@ -90,20 +91,22 @@ async def getEntity():
 
 @app.before_serving
 async def startup():
-    await client.start()
-    user = await client.get_me()
+    await telegram_client.start()
+    user = await telegram_client.get_me()
     app.logger.info('Logged in as @{}'.format(user.username))
 
 
 @app.after_serving
 async def cleanup():
-    await client.disconnect()
+    await telegram_client.disconnect()
 
 
 async def main():
-    await hypercorn.asyncio.serve(app, hypercorn.Config())
+    hypercorn_config = hypercorn.Config()
+    hypercorn_config.bind = [f"0.0.0.0:{API_PORT}"]
+    await hypercorn.asyncio.serve(app, hypercorn_config)
 
 
 if __name__ == "__main__":
-    client.on(events.NewMessage)(forwarder_event_handler)
-    client.loop.run_until_complete(main())
+    telegram_client.on(events.NewMessage)(forwarder_event_handler)
+    telegram_client.loop.run_until_complete(main())

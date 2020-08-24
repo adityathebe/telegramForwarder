@@ -1,13 +1,9 @@
-const path = require('path');
+const { DB_HOST } = require('../config');
 
 const knex = require('knex')({
   client: 'pg',
-  // connection: {
-  //   filename: `${path.join(__dirname, '../../', 'database', 'database.db')}`,
-  // },
-  // useNullAsDefault: true,
   connection: {
-    host: '127.0.0.1',
+    host: DB_HOST,
     user: 'postgres',
     password: 'mysecretpassword',
     database: 'telegram',
@@ -53,10 +49,10 @@ const knex = require('knex')({
   if (!hasFiltersTable) {
     await knex.schema.createTable('filters', (tableBuilder) => {
       tableBuilder.increments('id').primary();
-      tableBuilder.boolean('audio').notNullable();
-      tableBuilder.boolean('video').notNullable();
-      tableBuilder.boolean('photo').notNullable();
-      tableBuilder.boolean('sticker').notNullable();
+      tableBuilder.boolean('audio').defaultTo(false);
+      tableBuilder.boolean('video').defaultTo(false);
+      tableBuilder.boolean('photo').defaultTo(false);
+      tableBuilder.boolean('sticker').defaultTo(false);
       tableBuilder.boolean('document').defaultTo(false);
       tableBuilder.boolean('hashtag').defaultTo(false);
       tableBuilder.boolean('link').defaultTo(false);

@@ -5,7 +5,7 @@ const db = require('./db/database');
 const MessageParser = require('./controllers/message/parser');
 
 // Controllers
-// const addFilter = require('../addFilter');
+const addFilter = require('./controllers/addFilter');
 // const getFilter = require('../getFilter');
 const addRedirection = require('./controllers/addRedirection');
 const activateRedirection = require('./controllers/activateRedirection');
@@ -162,19 +162,21 @@ commandHandler.on('/remove', async (data, msgEvent) => {
   }
 });
 
-//   if (command === '/filter') {
-//     try {
-//       const response = await addFilter(sender, parsedMsg);
-//       let reply = `✅ Command Success.\n\n<code>`;
-//       reply += `- Redirection id : [${response.filterData.redirectionId}]\n`;
-//       reply += `- Filter Name : ${response.filterData.name}\n`;
-//       reply += `- Filter State : ${response.filterData.state}</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   } else if (command === '/filters') {
+commandHandler.on('/filter', async (data, msgEvent) => {
+  try {
+    const response = await addFilter(msgEvent.chat.id, data);
+    let reply = `✅ Command Success.\n\n<code>`;
+    reply += `- Redirection id : [${response.filterData.redirectionId}]\n`;
+    reply += `- Filter Name : ${response.filterData.name}\n`;
+    reply += `- Filter State : ${response.filterData.state}</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  } catch (err) {
+    const reply = err.message || err || 'Some error occured';
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
+  }
+});
+
+//    else if (command === '/filters') {
 //     try {
 //       const filter = await getFilter(sender, parsedMsg.filterId);
 //       let reply = `✅ Filters for redirection <code>[${filter.id}]</code>\n\n`;
