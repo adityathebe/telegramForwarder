@@ -32,7 +32,7 @@ async def joinPublicUserEntity():
     app.logger.info('[/joinPublicUserEntity] :: Entity Name {}'.format(entity))
     try:
         msg = '/start'
-        result = await client.send_message(entity, msg)
+        result = await client.get_entity(entity)
         return result.to_dict()
     except Exception as exception:
         return {'error': str(exception)}

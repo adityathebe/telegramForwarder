@@ -1,4 +1,5 @@
 import logging
+import json
 from client import client
 from db.database import Database
 from utils.filter import MessageFilter
@@ -36,28 +37,33 @@ async def forwarder_event_handler(event):
     else:
         logger.info('Invalid Sender Type', event)
 
-    logger.info('Message : {}'.format(message))
-    logger.info('Sender : {}'.format(sender_id))
+    logger.info(f'Message : {message}')
+    logger.info(f'Sender : {sender_id}')
 
-    # Mark as read
+    # Mark as read (Optional)
     user_entity = await client.get_input_entity(sender_id)
     await client.send_read_acknowledge(user_entity, max_id=event.original_update.pts)
 
     # Get all Receivers of given userid
     try:
-        redirections = database.get_redirections_of_source(sender_id)
+        redirections = database.get_active_redirections_of_source(sender_id)
+        logger.info(f"Active Redirections: {json.dumps(redirections)}")
         for redirection in redirections:
             redirection_id = redirection[0]
-            user_id = redirection[1]
-            source = redirection[2]
+            author_id = int(redirection[1])
+            source = int(redirection[2])
             destination = int(redirection[3])
 
+            if source != sender_id:
+                logger.info("Source != Sender")
+                continue
+
             # Get User from database
-            user = database.get_user(user_id)
-            user_is_premium = user[4]
+            user = database.get_user(author_id)
+            is_user_premium = user[4]
 
             # Allow premium users only
-            if user_is_premium == 1:
+            if is_user_premium == 1:
                 should_filter = MessageFilter.filter_msg(redirection_id, event)
                 if should_filter:
                     return
@@ -71,7 +77,7 @@ async def forwarder_event_handler(event):
 
             else:
                 await client.forward_messages(destination, event.message.id, sender_id)
-            logger.info('Message sent to {}'.format(destination))
+            logger.info(f'Message sent to {destination}')
 
     except Exception as err:
         logger.error(err)

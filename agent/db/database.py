@@ -1,12 +1,17 @@
 import os
-import sqlite3
+import psycopg2
 
 
 class Database:
     def __init__(self):
-        path = os.path.dirname(os.path.abspath(__file__))
-        db = os.path.join(path, '..', '..', 'database', 'database.db')
-        self.db = sqlite3.connect(db)
+        self.db = psycopg2.connect(
+            host="localhost",
+            database="telegram",
+            user="postgres",
+            password="mysecretpassword")
+        # path = os.path.dirname(os.path.abspath(__file__))
+        # db = os.path.join(path, '..', '..', 'database', 'database.db')
+        # self.db = sqlite3.connect(db)
 
     def get_user(self, user_id):
         cursor = self.db.cursor()
@@ -16,7 +21,7 @@ class Database:
         cursor.close()
         return result
 
-    def get_redirections_of_source(self, source):
+    def get_active_redirections_of_source(self, source):
         cursor = self.db.cursor()
         sql = "SELECT * FROM redirections WHERE source = {} AND active = 1;".format(
             source)
@@ -65,10 +70,5 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
-    c = db.db.cursor()
-    c.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    print(c.fetchall())
-
-
-    # r = db.get_all_redirections()
-    # print(r)
+    r = db.get_all_redirections()
+    print(r)
