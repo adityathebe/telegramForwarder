@@ -91,6 +91,9 @@ async def getEntity():
 @app.before_serving
 async def startup():
     await telegram_client.connect()
+    if await telegram_client.is_user_authorized():
+        user = await telegram_client.get_me()
+        app.logger.info(f'Logged in as @{user.username}')
 
 
 @app.after_serving

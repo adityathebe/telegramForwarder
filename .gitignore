@@ -1,21 +1,11 @@
-*.db
-
 bot/node_modules
-bot/config/agent.js
-bot/config/agent.js
-bot/config/database.js
-bot/config/misc.js
-bot/config/server.js
-bot/config/telegram.js
-migrate.js
 
 agent/config/synaptic.py
-*.session
-*.session-journal
+agent/.venv/
 *.db-journal
 __pycache__
-
-agent/.venv/
-env
-docker-compose-dev.yml
 .env
+agent/session/*
+
+!.keep
+*.db

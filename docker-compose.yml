@@ -25,6 +25,8 @@ services:
       DB_HOST: postgres-db
     ports:
       - '3000:3000'
+    volumes:
+      - './agent/session:/telegram-python-agent/session'
 
   postgres-db:
     image: postgres:alpine
