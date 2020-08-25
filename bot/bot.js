@@ -24,7 +24,6 @@ class CommandHandler extends EventEmitter {}
 const commandHandler = new CommandHandler();
 
 bot.onText(new RegExp('^/start$'), async msgEvent => {
-  logger.info({ message: '/start', sender: msgEvent.chat.id });
   let reply = 'Welcome to MultiFeed Bot! 🔥\n\n';
   reply += 'Send /help to get usage instructions';
   bot.sendMessage(msgEvent.chat.id, reply).catch(logger.error);
@@ -59,8 +58,6 @@ bot.onText(new RegExp('^/help$'), msgEvent => {
     })
     .catch(console.error);
 });
-
-bot.on('polling_error', console.error);
 
 bot.on('message', msgEvent => {
   if (msgEvent.chat.type == 'private') {
@@ -219,8 +216,6 @@ commandHandler.on('/filters', async (data, msgEvent) => {
   }
 });
 
-//    else if (command === '/filters') {
-
 //   } else if (command === '/transform') {
 //     try {
 //       const response = await addTransformation(
@@ -281,5 +276,7 @@ commandHandler.on('/filters', async (data, msgEvent) => {
 // };
 
 if (require.main === module) {
+  bot.on('message', msg => logger.info(msg));
+  bot.on('polling_error', err => logger.error(err));
   bot.startPolling();
 }
