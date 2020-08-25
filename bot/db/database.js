@@ -71,28 +71,14 @@ class Database {
    */
   saveFilter(redirectionId, filterName, data) {
     console.log({ redirectionId, filterName, data });
-    return knex.raw(`INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET ${filterName} = ?`, [
-      redirectionId,
-      data,
-      data,
-    ]);
-    return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON DUPLICATE KEY UPDATE ${filterName} = ?;`;
-      this.connection.query(sql, [redirectionId, data, data], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw(
+      `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET ${filterName} = ?`,
+      [redirectionId, data, data]
+    );
   }
 
   getFilter(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM filters WHERE id = ?';
-      this.connection.query(sql, [redirectionId], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('filters').select('*').where({ id: redirectionId }).first();
   }
 
   /////////////////////

@@ -1,12 +1,15 @@
 // @ts-check
+const pino = require('pino');
+const { v4: uuidv4 } = require('uuid');
 const EventEmitter = require('events').EventEmitter;
 
 const db = require('./db/database');
+const bot = require('./services/telegram');
 const MessageParser = require('./controllers/message/parser');
 
 // Controllers
 const addFilter = require('./controllers/addFilter');
-// const getFilter = require('../getFilter');
+const getFilter = require('./controllers/getFilter');
 const addRedirection = require('./controllers/addRedirection');
 const activateRedirection = require('./controllers/activateRedirection');
 const removeRedirection = require('./controllers/removeRedirection');
@@ -16,20 +19,25 @@ const deactivateRedirection = require('./controllers/deactivateRedirection');
 // const getTransformations = require('../getTransformations');
 // const removeTransformation = require('../removeTransformation');
 
+const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 class CommandHandler extends EventEmitter {}
 const commandHandler = new CommandHandler();
 
-const bot = require('./services/telegram');
-bot.onText(new RegExp('^/start$'), async (msgEvent) => {
+bot.onText(new RegExp('^/start$'), async msgEvent => {
+  logger.info({ message: '/start', sender: msgEvent.chat.id });
   let reply = 'Welcome to MultiFeed Bot! 🔥\n\n';
   reply += 'Send /help to get usage instructions';
-  bot.sendMessage(msgEvent.chat.id, reply).catch(console.error);
+  bot.sendMessage(msgEvent.chat.id, reply).catch(logger.error);
 
   // Store User to Database
-  await db.saveUser(msgEvent.chat.id, msgEvent.from.username, Math.random() * 1000);
+  try {
+    await db.saveUser(msgEvent.chat.id, msgEvent.from.username, uuidv4());
+  } catch (err) {
+    logger.error(err);
+  }
 });
 
-bot.onText(new RegExp('^/help$'), (msgEvent) => {
+bot.onText(new RegExp('^/help$'), msgEvent => {
   let reply = 'Typical workflow in the bot:\n\n';
   reply += '1. You have two links:\n';
   reply += '- `SOURCE` - link to the channel to forward messages FROM';
@@ -54,7 +62,7 @@ bot.onText(new RegExp('^/help$'), (msgEvent) => {
 
 bot.on('polling_error', console.error);
 
-bot.on('message', (msgEvent) => {
+bot.on('message', msgEvent => {
   if (msgEvent.chat.type == 'private') {
     // Parse Command
     // Check Commands with MessageParser
@@ -90,7 +98,7 @@ commandHandler.on('/add', async (data, msgEvent) => {
         .sendMessage(msgEvent.chat.id, error, {
           parse_mode: 'HTML',
         })
-        .catch((e) => console.error(e.message));
+        .catch(e => console.error(e.message));
     }
     const reply = `✔ New Redirection added`;
     return bot.sendMessage(msgEvent.chat.id, reply, {
@@ -125,15 +133,15 @@ commandHandler.on('/list', async (data, msgEvent) => {
     if (redirections.length === 0) {
       return bot
         .sendMessage(msgEvent.chat.id, 'You have no redirections', { parse_mode: 'HTML' })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     }
 
     let reply = '';
-    redirections.forEach((redirection) => {
+    redirections.forEach(redirection => {
       let state = redirection.active == 1 ? '🔵' : '🔴';
       reply += `--- ${state} <code>[${redirection.id}]</code> ${redirection.source_title} => ${redirection.destination_title}\n`;
     });
-    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch((err) => console.log(err));
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => console.log(err));
   } catch (err) {
     console.log(err);
     bot.sendMessage(msgEvent.chat.id, err, { parse_mode: 'HTML' });
@@ -164,11 +172,15 @@ commandHandler.on('/remove', async (data, msgEvent) => {
 
 commandHandler.on('/filter', async (data, msgEvent) => {
   try {
-    const response = await addFilter(msgEvent.chat.id, data);
+    const { error, filterData } = await addFilter(msgEvent.chat.id, data);
+    if (error) {
+      bot.sendMessage(msgEvent.chat.id, error).catch(logger.error);
+      return;
+    }
     let reply = `✅ Command Success.\n\n<code>`;
-    reply += `- Redirection id : [${response.filterData.redirectionId}]\n`;
-    reply += `- Filter Name : ${response.filterData.name}\n`;
-    reply += `- Filter State : ${response.filterData.state}</code>`;
+    reply += `- Redirection id : [${filterData.redirectionId}]\n`;
+    reply += `- Filter Name : ${filterData.name}\n`;
+    reply += `- Filter State : ${filterData.state}</code>`;
     bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(console.error);
   } catch (err) {
     const reply = err.message || err || 'Some error occured';
@@ -176,32 +188,39 @@ commandHandler.on('/filter', async (data, msgEvent) => {
   }
 });
 
+commandHandler.on('/filters', async (data, msgEvent) => {
+  try {
+    const { filter, error } = await getFilter(msgEvent.chat.id, data.filterId);
+    if (error) {
+      bot.sendMessage(msgEvent.chat.id, error, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+      return;
+    }
+
+    let reply = `✅ Filters for redirection <code>[${filter.id}]</code>\n\n`;
+    reply += '<code>';
+    reply += `- ${filter.audio ? '🔵' : '🔴'} audio\n`;
+    reply += `- ${filter.video ? '🔵' : '🔴'} video\n`;
+    reply += `- ${filter.photo ? '🔵' : '🔴'} photo\n`;
+    reply += `- ${filter.sticker ? '🔵' : '🔴'} sticker\n`;
+    reply += `- ${filter.document ? '🔵' : '🔴'} document\n`;
+    reply += `- ${filter.hashtag ? '🔵' : '🔴'} hashtag\n`;
+    reply += `- ${filter.link ? '🔵' : '🔴'} link\n`;
+    reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${
+      filter.contain ? filter.contain.replace(/<stop_word>/g, ', ') : null
+    }\n`;
+    reply += `- ${filter.notcontain ? '🔵' : '🔴'} notcontain = ${
+      filter.notcontain ? filter.notcontain.replace('<stop_word>', ', ') : null
+    }`;
+    reply += '</code>';
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+  } catch (err) {
+    logger.error(err);
+    bot.sendMessage(msgEvent.chat.id, '❌ Some error occured').catch(err => logger.error(err));
+  }
+});
+
 //    else if (command === '/filters') {
-//     try {
-//       const filter = await getFilter(sender, parsedMsg.filterId);
-//       let reply = `✅ Filters for redirection <code>[${filter.id}]</code>\n\n`;
-//       reply += '<code>';
-//       reply += `- ${filter.audio === 1 ? '🔵' : '🔴'} audio\n`;
-//       reply += `- ${filter.video === 1 ? '🔵' : '🔴'} video\n`;
-//       reply += `- ${filter.photo === 1 ? '🔵' : '🔴'} photo\n`;
-//       reply += `- ${filter.sticker === 1 ? '🔵' : '🔴'} sticker\n`;
-//       reply += `- ${filter.document === 1 ? '🔵' : '🔴'} document\n`;
-//       reply += `- ${filter.hashtag === 1 ? '🔵' : '🔴'} hashtag\n`;
-//       reply += `- ${filter.link === 1 ? '🔵' : '🔴'} link\n`;
-//       reply += `- ${filter.contain ? '🔵' : '🔴'} contain = ${
-//         filter.contain ? filter.contain.replace(/<stop_word>/g, ', ') : null
-//       }\n`;
-//       reply += `- ${filter.notcontain ? '🔵' : '🔴'} notcontain = ${
-//         filter.notcontain
-//           ? filter.notcontain.replace('<stop_word>', ', ')
-//           : null
-//       }`;
-//       reply += '</code>';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
+
 //   } else if (command === '/transform') {
 //     try {
 //       const response = await addTransformation(
