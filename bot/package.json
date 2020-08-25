@@ -17,6 +17,11 @@
     "knex": "^0.20.9",
     "node-telegram-bot-api": "^0.40.0",
     "pg": "^8.3.2",
-    "request": "^2.88.2"
+    "pino": "^6.5.1",
+    "request": "^2.88.2",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
