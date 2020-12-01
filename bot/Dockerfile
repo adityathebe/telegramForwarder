@@ -4,10 +4,10 @@ RUN apt-get update
 
 WORKDIR /usr/src/telegram-forwarder/bot
 
-COPY package.json .
+COPY package*.json ./
 
 RUN npm install
 
 COPY . .
 
-CMD ["npx", "nodemon", "bot.js"]
+CMD ["node", "bot.js"]

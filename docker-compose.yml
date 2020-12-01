@@ -12,8 +12,6 @@ services:
       NTBA_FIX_319: 1
     depends_on:
       - postgres-db
-    volumes: 
-      - './bot:/usr/src/telegram-forwarder/bot'
 
   python-agent:
     build: './agent'
