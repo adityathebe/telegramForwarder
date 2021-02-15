@@ -64,10 +64,9 @@ Once you get the database, python agent and node server running, you need to log
 
 Visit [http://localhost:3000/login](http://localhost:3000/login) to login
 
+# Access database from the docker container
 
-## Access database from the docker container
-
-If you've already install `psql` or any other Postgres GUI tools then you can simply connect to the database as the port `5432` is exposed and mapped to the host system's port `5432`
+If you've already installed `psql` or any other Postgres GUI tools then you can simply connect to the database as the port `5432` is exposed and mapped to the host system's port `5432`.
 
 However, if you don't have any of those tools and don't want to bother installing them, you can simply get an interactive shell on the docker container and access database from there. If you run the command below, you will get a shell on the postgres docker container
 
@@ -83,18 +82,16 @@ sudo -u postgres -i
 # https://stackoverflow.com/a/11919677/6199444
 ```
 
-Then you can simply connect to postgres 
+Then you can simply connect to postgres
 
 ```
 psql
+\c telegram
 ```
 
-# Issues
-
-- [x] Join private entities via invitation link
-- [x] Duplicate redirection
-- [ ] Multiple Worker Agents
-- [ ] utf8 encoding mysql database
+```sql
+select * FROM users;
+```
 
 ### FAQ:
 
@@ -118,7 +115,3 @@ A: Yes.
 
 Q: Can I clone all the messages from some channel to my own channel?  
 A: Yes.
-
-Q: How to setup a Private bot plan?  
-A: Contact our support for details or leave your contact in the form below.
-
