@@ -14,12 +14,12 @@ const knex = require('knex')({
   // Create Tables
   const hasUserTable = await knex.schema.hasTable('users');
   if (!hasUserTable) {
-    await knex.schema.createTable('users', (tableBuilder) => {
+    await knex.schema.createTable('users', tableBuilder => {
       tableBuilder.string('chat_id').primary();
       tableBuilder.string('username').unique();
       tableBuilder.string('ref_code').notNullable().unique();
       tableBuilder.string('ref_by');
-      tableBuilder.boolean('premium').defaultTo(false);
+      tableBuilder.boolean('premium').defaultTo(true);
       tableBuilder.integer('quota').defaultTo(0);
 
       // Foreign Key
@@ -30,7 +30,7 @@ const knex = require('knex')({
 
   const hasRedTable = await knex.schema.hasTable('redirections');
   if (!hasRedTable) {
-    await knex.schema.createTable('redirections', (tableBuilder) => {
+    await knex.schema.createTable('redirections', tableBuilder => {
       tableBuilder.increments('id').primary();
       tableBuilder.string('owner').notNullable();
       tableBuilder.string('source').notNullable();
@@ -47,7 +47,7 @@ const knex = require('knex')({
 
   const hasFiltersTable = await knex.schema.hasTable('filters');
   if (!hasFiltersTable) {
-    await knex.schema.createTable('filters', (tableBuilder) => {
+    await knex.schema.createTable('filters', tableBuilder => {
       tableBuilder.increments('id').primary();
       tableBuilder.boolean('audio').defaultTo(false);
       tableBuilder.boolean('video').defaultTo(false);
@@ -56,8 +56,8 @@ const knex = require('knex')({
       tableBuilder.boolean('document').defaultTo(false);
       tableBuilder.boolean('hashtag').defaultTo(false);
       tableBuilder.boolean('link').defaultTo(false);
-      tableBuilder.string('contain').defaultTo(false);
-      tableBuilder.string('notcontain').defaultTo(false);
+      tableBuilder.string('contain');
+      tableBuilder.string('notcontain');
 
       // Foreign Key
       tableBuilder.foreign('id').references('id').inTable('redirections').onDelete('cascade');
@@ -67,7 +67,7 @@ const knex = require('knex')({
 
   const hasTransformationsTable = await knex.schema.hasTable('transformations');
   if (!hasTransformationsTable) {
-    await knex.schema.createTable('transformations', (tableBuilder) => {
+    await knex.schema.createTable('transformations', tableBuilder => {
       tableBuilder.increments('id').primary();
       tableBuilder.integer('redirection_id').notNullable();
       tableBuilder.string('old_phrase').notNullable();
