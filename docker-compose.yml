@@ -19,6 +19,7 @@ services:
     image: 'telegram-forwarder-python-agent'
     depends_on:
       - postgres-db
+      - node-bot
     environment:
       API_PORT: 3000
       TG_API_ID: '${TG_API_ID}'
@@ -33,6 +34,7 @@ services:
     image: postgres:alpine
     environment:
       POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: telegram
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:

@@ -1,1 +1,1 @@
-create database telegram;
+-- Use this file run sql queries on database intialization
