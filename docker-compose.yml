@@ -12,6 +12,7 @@ services:
       NTBA_FIX_319: 1
     depends_on:
       - postgres-db
+    command: ["./wait-for.sh", "postgres-db:5432", "--", "node", "bot.js"]
 
   python-agent:
     build: './agent'
