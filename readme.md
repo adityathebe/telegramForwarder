@@ -65,6 +65,20 @@ Once you get the database, python agent and node server running, you need to log
 
 Visit [http://localhost:3000/login](http://localhost:3000/login) to login
 
+# Things to keep in mind
+
+1. If you're running the code via docker and docker-compose then you'll need to rebuild the docker images after pulling new updates.
+
+```
+docker-compose up --build
+```
+
+2. Docker will persist the postgres database even after you stop the docker containers. If for some reason you want to start fresh and clean the database you need to purge the docker volume.
+
+```
+docker-compose down -v
+```
+
 # Access database from the docker container
 
 If you've already installed `psql` or any other Postgres GUI tools then you can simply connect to the database as the port `5432` is exposed and mapped to the host system's port `5432`.
