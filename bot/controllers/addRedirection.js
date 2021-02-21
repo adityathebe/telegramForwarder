@@ -9,7 +9,7 @@ const QUOTA_LIMIT = require('../config/').APP.FREE_USER.QUOTA_LIMIT;
  * @param {string} entity username or invitation link
  * @returns {Object}
  */
-const checkSourcePattern = (entity) => {
+const checkSourcePattern = entity => {
   if (entity.indexOf('@') === 0) return { username: entity };
   if (entity.indexOf('t.me/joinchat/') === 0) return { hash: entity.replace('t.me/joinchat/', '') };
   if (entity.indexOf('https://t.me/joinchat/') === 0) return { hash: entity.replace('https://t.me/joinchat/', '') };
@@ -132,13 +132,3 @@ const addRedirection = async (sender, source, destination) => {
 };
 
 module.exports = addRedirection;
-
-if (require.main === module) {
-  addRedirection(
-    '451722605',
-    'https://t.me/joinchat/AAAAAEe7gLe3EYu3D_t0Yg',
-    'https://t.me/joinchat/AAAAAEv7_vtg3hq24P4yfA'
-  )
-    .then((x) => console.log(x))
-    .catch((x) => console.log(x));
-}

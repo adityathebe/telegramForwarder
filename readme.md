@@ -26,6 +26,7 @@ The `docker-compose` file requires few environment variables. Create a `.env` fi
 TG_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 TG_API_ID=XXXX
 TG_HASH_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+TG_BOT_USERNAME=@XXXXXXXXXXXXXXXXXbot
 ```
 
 With that set up you're ready to go !

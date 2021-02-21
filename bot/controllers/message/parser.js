@@ -20,57 +20,51 @@ const commandError = (command, errorMsg) => {
   return {
     command,
     error: errorMsg,
-  }
-}
+  };
+};
 
-const addMessageEntities = (messageEvent) => {
+const addMessageEntities = messageEvent => {
   const entities = messageEvent.entities;
   let msgText = messageEvent.text;
   let addedOffset = 0;
 
-  entities.forEach((entity) => {
+  entities.forEach(entity => {
     const entityType = entity.type;
     let offset = entity.offset + addedOffset;
     let length = offset + entity.length;
 
     if (entityType === 'pre') {
-      msgText = msgText.slice(0, offset) + "```" + msgText.slice(offset);
-      length += 3
-      msgText = msgText.slice(0, length) + "```" + msgText.slice(length);
-      addedOffset += 6
-    }
-
-    else if (entityType === 'bold') {
-      msgText = msgText.slice(0, offset) + "**" + msgText.slice(offset);
-      length += 2
-      msgText = msgText.slice(0, length) + "**" + msgText.slice(length);
-      addedOffset += 4
-    }
-
-    else if (entityType === 'italic') {
-      msgText = msgText.slice(0, offset) + "__" + msgText.slice(offset);
-      length += 2
-      msgText = msgText.slice(0, length) + "__" + msgText.slice(length);
-      addedOffset += 4
-    }
-
-    else if (entityType === 'code') {
-      msgText = msgText.slice(0, offset) + "`" + msgText.slice(offset);
-      length += 1
-      msgText = msgText.slice(0, length) + "`" + msgText.slice(length);
-      addedOffset += 2
+      msgText = msgText.slice(0, offset) + '```' + msgText.slice(offset);
+      length += 3;
+      msgText = msgText.slice(0, length) + '```' + msgText.slice(length);
+      addedOffset += 6;
+    } else if (entityType === 'bold') {
+      msgText = msgText.slice(0, offset) + '**' + msgText.slice(offset);
+      length += 2;
+      msgText = msgText.slice(0, length) + '**' + msgText.slice(length);
+      addedOffset += 4;
+    } else if (entityType === 'italic') {
+      msgText = msgText.slice(0, offset) + '__' + msgText.slice(offset);
+      length += 2;
+      msgText = msgText.slice(0, length) + '__' + msgText.slice(length);
+      addedOffset += 4;
+    } else if (entityType === 'code') {
+      msgText = msgText.slice(0, offset) + '`' + msgText.slice(offset);
+      length += 1;
+      msgText = msgText.slice(0, length) + '`' + msgText.slice(length);
+      addedOffset += 2;
     }
   });
 
   return msgText;
-}
+};
 
 /////////////////////////////
 // Transformations Command //
 /////////////////////////////
 
 // Remove Transformation
-const parseCommandTransformRemove = (message) => {
+const parseCommandTransformRemove = message => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 2) {
     let errMsg = 'Should contain 1 parameter.\n\n';
@@ -79,11 +73,11 @@ const parseCommandTransformRemove = (message) => {
   }
   return {
     transformationId: msgArr[1],
-  }
-}
+  };
+};
 
 // List Transformations
-const parseCommandTransforms = (message) => {
+const parseCommandTransforms = message => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 2) {
     let errMsg = 'Should contain 1 parameter.\n\n';
@@ -92,8 +86,8 @@ const parseCommandTransforms = (message) => {
   }
   return {
     redirectionId: msgArr[1],
-  }
-}
+  };
+};
 
 // Add Transformation
 const parseCommandTransform = (message, messageEvent) => {
@@ -112,11 +106,11 @@ const parseCommandTransform = (message, messageEvent) => {
     redirectionId: msgArr[1],
     oldPhrase: msgArrOfLines[1],
     newPhrase: msgArrOfLines[2],
-  }
-}
+  };
+};
 
 // Swap rank of transformations
-const parseCommandTransformRank = (message) => {
+const parseCommandTransformRank = message => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 4) {
     let errMsg = 'Should contain 3 parameters.\n\n';
@@ -130,77 +124,86 @@ const parseCommandTransformRank = (message) => {
     redirectionId: msgArr[1],
     rank1: msgArr[2],
     rank2: msgArr[3],
-  }
-}
+  };
+};
 
 //////////////////////////
 // Redirection commands //
 //////////////////////////
 
 // Add Redirection
-const parseCommandAdd = (message) => {
+const parseCommandAdd = message => {
   const msgArr = message.trim().split(' ');
-  let errMsg = 'Should contain 2 parameters.\n\n'
+  let errMsg = 'Should contain 2 parameters.\n\n';
   errMsg += '`/add @youtube @google\n/add https://t.me/joinchat @facebook`';
   if (msgArr.length !== 3) return commandError(msgArr[0], errMsg);
   return {
     source: msgArr[1],
-    destination: msgArr[2]
-  }
-}
+    destination: msgArr[2],
+  };
+};
 
 // Remove Redirection
-const parseCommandRemove = (message) => {
+const parseCommandRemove = message => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter.\n\n';
   errMsg += '`/remove <redirection id>`';
   if (msgArr.length !== 2) return commandError(msgArr[0], errMsg);
-  return { redirectionId: msgArr[1] }
-}
+  return { redirectionId: msgArr[1] };
+};
 
 // List Redirections
-const parseCommandList = (message) => {
+const parseCommandList = message => {
   const msgArr = message.trim().split(' ');
   if (msgArr.length !== 1) return commandError(msgArr[0], 'Should not have any parameter');
   return true;
-}
+};
 
 // Activate Redirection
-const parseCommandActivate = (message) => {
+const parseCommandActivate = message => {
   const msgArr = message.trim().split(' ');
-  let errMsg = 'Should contain 1 parameter\n\n'
-  errMsg += '`/activate <redirection id>`';
-  if (msgArr.length !== 2) return commandError(msgArr[0], errMsg);
-  return { redirectionId: msgArr[1] }
-}
+  if (msgArr.length !== 2) return commandError(msgArr[0], 'Should contain 1 parameter\n\n`/activate <redirection id>`');
+
+  const redirectionId = msgArr[1];
+  if (isNaN(Number(redirectionId))) {
+    return commandError(msgArr[0], `redirection id should be a number`);
+  }
+
+  return { redirectionId };
+};
 
 // Deactivate Redirection
-const parseCommandDeactivate = (message) => {
+const parseCommandDeactivate = message => {
   const msgArr = message.trim().split(' ');
-  let errMsg = 'Should contain 1 parameter\n\n'
-  errMsg += '`/deactivate <redirection id>`';
-  if (msgArr.length !== 2) return commandError(msgArr[0], errMsg);
-  return { redirectionId: msgArr[1] }
-}
+  if (msgArr.length !== 2) {
+    return commandError(msgArr[0], 'Should contain 1 parameter\n\n`/deactivate <redirection id>`');
+  }
+
+  const redirectionId = msgArr[1];
+  if (isNaN(Number(redirectionId))) {
+    return commandError(msgArr[0], `redirection id should be a number`);
+  }
+
+  return { redirectionId: msgArr[1] };
+};
 
 /////////////////////
 // Filter Commands //
 /////////////////////
 
 // Add Filter
-const parseCommandFilter = (message) => {
-
+const parseCommandFilter = message => {
   let parsedResponse = {};
   const msgArr = message.trim().split(' ');
   if (msgArr.length < 4) {
     let reply = 'Should contain at least 3 parameters.\n\n';
     reply += '`/filter <filter name> <redirection id> <filter state>`\n\n';
-    reply += 'Example : \n\n'
-    reply += '`/filter photo 152 on`'
+    reply += 'Example : \n\n';
+    reply += '`/filter photo 152 on`';
     return commandError(msgArr[0], reply);
   }
 
-  const validFilters = ['photo', 'video', 'audio', 'sticker', 'document', 'hashtag', 'link', 'contain', 'notcontain']
+  const validFilters = ['photo', 'video', 'audio', 'sticker', 'document', 'hashtag', 'link', 'contain', 'notcontain'];
   const validStates = ['on', 'off'];
 
   const filterName = msgArr[1];
@@ -211,7 +214,7 @@ const parseCommandFilter = (message) => {
   // Valid filter ? //
   ////////////////////
   if (validFilters.indexOf(filterName) < 0) {
-    const errMsg = `Invalid filter name. Available filters :\n\n- ${validFilters.join('\n- ')}`
+    const errMsg = `Invalid filter name. Available filters :\n\n- ${validFilters.join('\n- ')}`;
     return commandError(msgArr[0], errMsg);
   }
 
@@ -235,7 +238,7 @@ const parseCommandFilter = (message) => {
 
       if (filterKeywords.length === 0) {
         let errMsg = 'Please provide keywords.\n\n Example: \n';
-        errMsg += '`/filter contain 1 on\nqueen\nBohemian Rhapsody`'
+        errMsg += '`/filter contain 1 on\nqueen\nBohemian Rhapsody`';
         return commandError(msgArr[0], errMsg);
       }
     }
@@ -245,20 +248,18 @@ const parseCommandFilter = (message) => {
   parsedResponse.state = filterState;
   parsedResponse.redirectionId = redirectionId;
   return parsedResponse;
-}
+};
 
 // List Filters
-const parseCommandFilters = (message) => {
+const parseCommandFilters = message => {
   const msgArr = message.trim().split(' ');
   let errMsg = 'Should contain 1 parameter\n\n';
-  errMsg += '`/filters <filter id>`'
+  errMsg += '`/filters <filter id>`';
   if (msgArr.length !== 2) return commandError(msgArr[0], errMsg);
-  return { filterId: msgArr[1] }
-}
-
+  return { filterId: msgArr[1] };
+};
 
 class MessageParser {
-
   /**
    * Takes in message and checks if there is a valid command
    * @param {String} message Telegram Message
@@ -282,7 +283,7 @@ class MessageParser {
       '/transforms': parseCommandTransforms,
       '/transformrank': parseCommandTransformRank,
       '/transformremove': parseCommandTransformRemove,
-    }
+    };
   }
 
   /**
@@ -294,7 +295,6 @@ class MessageParser {
   static getCommand(message) {
     return message.trim().split(' ')[0];
   }
-
 }
 
 module.exports = MessageParser;
@@ -308,15 +308,13 @@ if (require.main === module) {
     const response = parser(message);
 
     if (response.error) {
-      return console.log(response)
+      return console.log(response);
     }
 
     if (command === '/add') {
-      console.log(`Source: ${response.source} && Destination: ${response.destination}`)
-    }
-
-    else if (command === '/remove') {
-      console.log(`Redirection ID: ${response.redirectionId}`)
+      console.log(`Source: ${response.source} && Destination: ${response.destination}`);
+    } else if (command === '/remove') {
+      console.log(`Redirection ID: ${response.redirectionId}`);
     }
   }
 }

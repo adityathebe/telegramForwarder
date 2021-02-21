@@ -8,6 +8,7 @@ services:
       AGENT_PORT: 3000
       AGENT_HOSTNAME: python-agent
       TG_API_KEY: '${TG_API_KEY}'
+      TG_BOT_USERNAME: '${TG_BOT_USERNAME}'
       DB_HOST: postgres-db
       NTBA_FIX_319: 1
     depends_on:
