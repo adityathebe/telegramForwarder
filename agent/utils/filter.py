@@ -134,10 +134,3 @@ class MessageFilter:
         logger.info('Contains word :: {} && Contains Blacklist :: {}'.format(
             contains_required_word, contains_blacklist_word))
         return (not contains_required_word) or contains_blacklist_word
-
-
-if __name__ == "__main__":
-    resp = MessageFilter.get_filter('50')
-    print(resp)
-    filter_list = MessageFilter.get_active_filters(resp)
-    print(filter_list)

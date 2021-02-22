@@ -3,6 +3,7 @@ version: '3.1'
 services:
   node-bot:
     build: ./bot
+    restart: always
     image: telegram-forwarder-node-bot
     environment:
       AGENT_PORT: 3000
@@ -17,6 +18,7 @@ services:
 
   python-agent:
     build: './agent'
+    restart: always
     image: 'telegram-forwarder-python-agent'
     depends_on:
       - postgres-db

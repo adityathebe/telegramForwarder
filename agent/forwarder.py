@@ -69,7 +69,7 @@ async def forwarder_event_handler(event):
                     return
 
                 if has_media:
-                    await telegram_client.send_file(destination, event.media)
+                    await telegram_client.send_file(destination, event.media, caption=message)
                 else:
                     transformed_message = MessageTransformation.get_transformed_msg(
                         event, redirection_id)
