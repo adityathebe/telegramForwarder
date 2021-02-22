@@ -86,25 +86,13 @@ If you've already installed `psql` or any other Postgres GUI tools then you can 
 However, if you don't have any of those tools and don't want to bother installing them, you can simply get an interactive shell on the docker container and access database from there. If you run the command below, you will get a shell on the postgres docker container
 
 ```bash
-docker container exec -it telegramforwarder_postgres-db_1 bash
+docker container exec -it telegramforwarder_postgres-db_1 psql -U postgres
 ```
 
-Once you are logged in, you have to install `sudo`
-
-```bash
-apk add sudo
-sudo -u postgres -i
-# https://stackoverflow.com/a/11919677/6199444
-```
-
-Then you can simply connect to postgres
-
-```
-psql
-\c telegram
-```
+> Note 1: The PostgreSQL image sets up trust authentication locally so you may notice a password is not required when connecting from localhost (inside the same container). However, a password will be required if connecting from a different host/container.
 
 ```sql
+-- \c telegram
 select * FROM users;
 ```
 
@@ -123,10 +111,4 @@ Q: Can I filter out ads or media content (videos, stickers, etc.)?
 A: Yes.
 
 Q: Can I set up automatic forwarding from another bot?  
-A: Yes.
-
-Q: I don't have a link of a chat/group. Can I still setup forwarding from it?
-A: Yes.
-
-Q: Can I clone all the messages from some channel to my own channel?  
 A: Yes.
