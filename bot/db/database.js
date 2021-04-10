@@ -70,7 +70,6 @@ class Database {
    * @param {} data filter state or filter keywords
    */
   saveFilter(redirectionId, filterName, data) {
-    console.log({ redirectionId, filterName, data });
     return knex.raw(
       `INSERT INTO filters (id, ${filterName}) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET ${filterName} = ?`,
       [redirectionId, data, data]
@@ -85,33 +84,18 @@ class Database {
   // Transformations //
   /////////////////////
   saveTransformation(redirectionId, oldPhrase, newPhrase, rank) {
-    return new Promise((resolve, reject) => {
-      const sql = 'INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?);';
-      this.connection.query(sql, [redirectionId, oldPhrase, newPhrase, rank], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw(
+      `INSERT INTO transformations (redirection_id, old_phrase, new_phrase, rank) VALUES (?, ?, ?, ?) RETURNING id`,
+      [redirectionId, oldPhrase, newPhrase, rank]
+    );
   }
 
   getTransformation(transformationId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM transformations WHERE id = ?';
-      this.connection.query(sql, [transformationId], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('transformations').select('*').where({ id: transformationId }).first();
   }
 
   getTransformationsOfRedirection(redirectionId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM transformations WHERE redirection_id = ?';
-      this.connection.query(sql, [redirectionId], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex('transformations').select('*').where({ redirection_id: redirectionId });
   }
 
   changeTransformationRank(transformationId, newRank) {
@@ -125,13 +109,7 @@ class Database {
   }
 
   removeTransformation(transformationId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'DELETE FROM transformations Where id = ?';
-      this.connection.query(sql, [transformationId], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    return knex.raw('DELETE FROM transformations WHERE id = ?', [transformationId]);
   }
 }
 

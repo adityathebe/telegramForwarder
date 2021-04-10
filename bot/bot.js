@@ -14,10 +14,10 @@ const addRedirection = require('./controllers/addRedirection');
 const activateRedirection = require('./controllers/activateRedirection');
 const removeRedirection = require('./controllers/removeRedirection');
 const deactivateRedirection = require('./controllers/deactivateRedirection');
-// const addTransformation = require('../addTransformation');
+const addTransformation = require('./controllers/addTransformation');
 // const swapTransformationRank = require('../swapTransformationRank');
-// const getTransformations = require('../getTransformations');
-// const removeTransformation = require('../removeTransformation');
+const getTransformations = require('./controllers/getTransformations');
+const removeTransformation = require('./controllers/removeTransformation');
 
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 class CommandHandler extends EventEmitter {}
@@ -72,7 +72,8 @@ bot.on('message', msgEvent => {
     const command = MessageParser.getCommand(msgEvent.text);
 
     // Commands that are handled elsewhere
-    if (command === '/help' || command === '/start') return;
+    const reservedCommands = ['/help', '/start'];
+    if (reservedCommands.includes(command)) return;
 
     const parser = MessageParser.hashMap()[command];
     const parsedMsg = parser(msgEvent.text, msgEvent);
@@ -216,20 +217,48 @@ commandHandler.on('/filters', async (data, msgEvent) => {
   }
 });
 
-//   } else if (command === '/transform') {
-//     try {
-//       const response = await addTransformation(
-//         sender,
-//         parsedMsg.redirectionId,
-//         parsedMsg.oldPhrase,
-//         parsedMsg.newPhrase
-//       );
-//       const reply = `New transformation added with id <code>${response.transformationId}</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
+commandHandler.on('/transform', async (data, msgEvent) => {
+  try {
+    const response = await addTransformation(msgEvent.chat.id, data.redirectionId, data.oldPhrase, data.newPhrase);
+    const reply = `New transformation added with id <code>${response.transformationId}</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+  } catch (err) {
+    logger.error(err);
+    bot.sendMessage(msgEvent.chat.id, `❌ ${err}`).catch(err => logger.error(err));
+  }
+});
+
+commandHandler.on('/transforms', async (data, msgEvent) => {
+  try {
+    const transformations = await getTransformations(msgEvent.chat.id, data.redirectionId);
+    if (transformations.length == 0) {
+      const reply = 'No transformation found.';
+      bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+    } else {
+      let reply = `Transformations for redirection [<code>${data.redirectionId}</code>]\n\n`;
+      reply += '<b>ID | Rank | Old Phrase | New Phrase</b>\n';
+      transformations.forEach(transformation => {
+        reply += `<code>${transformation.id}. [${transformation.rank}] ${transformation.old_phrase} ==> ${transformation.new_phrase}</code>\n`;
+      });
+      bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+    }
+  } catch (err) {
+    logger.error(err);
+    bot.sendMessage(msgEvent.chat.id, `❌ ${err}`).catch(err => logger.error(err));
+  }
+});
+
+commandHandler.on('/transformremove', async (data, msgEvent) => {
+  try {
+    await removeTransformation(msgEvent.chat.id, data.transformationId);
+    const reply = `✔ Transformation removed <code>${data.transformationId}</code>`;
+    bot.sendMessage(msgEvent.chat.id, reply, { parse_mode: 'HTML' }).catch(err => logger.error(err));
+  } catch (err) {
+    logger.error(err);
+    bot.sendMessage(msgEvent.chat.id, `❌ ${err}`).catch(err => logger.error(err));
+  }
+});
+
 //   } else if (command === '/transformrank') {
 //     try {
 //       await swapTransformationRank(
@@ -247,33 +276,7 @@ commandHandler.on('/filters', async (data, msgEvent) => {
 //       const reply = err.message || err || 'Some error occured';
 //       bot.send_message(sender, reply).catch(err => console.log(err));
 //     }
-//   } else if (command === '/transforms') {
-//     try {
-//       const transformations = await getTransformations(
-//         sender,
-//         parsedMsg.redirectionId
-//       );
-//       let reply = `Transformations for redirection <code>${parsedMsg.redirectionId}</code>\n\n`;
-//       reply += '<b>ID | Rank | Old Phrase | New Phrase</b>\n';
-//       transformations.forEach(transformation => {
-//         reply += `<code>${transformation.id}. [${transformation.rank}] ${transformation.old_phrase} ==> ${transformation.new_phrase}</code>\n`;
-//       });
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   } else if (command === '/transformremove') {
-//     try {
-//       await removeTransformation(sender, parsedMsg.transformationId);
-//       let reply = `Transformation removed <code>${parsedMsg.transformationId}</code>`;
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     } catch (err) {
-//       const reply = err.message || err || 'Some error occured';
-//       bot.send_message(sender, reply).catch(err => console.log(err));
-//     }
-//   }
-// };
+
 
 if (require.main === module) {
   bot.on('message', msg => logger.info(msg));

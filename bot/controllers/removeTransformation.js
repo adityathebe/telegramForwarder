@@ -7,11 +7,12 @@ const removeTransformation = (sender, transformationId) => {
       // Sender must be the owner of redirection //
       // Linked with the given transformations   //
       /////////////////////////////////////////////
-      const transformations = await database.getTransformation(transformationId);
-      if (transformations.length === 0) throw new Error('Transformation does not exist');
-      
+      const transformation = await database.getTransformation(transformationId);
+      if (transformation === undefined) throw new Error('Transformation does not exist');
+
       const redirections = await database.getRedirections(sender);
-      if (redirections.length === 0) throw new Error('You are not the owner of the transformation.');
+      const isOwner = redirections.filter(r => r.id == transformation['redirection_id']).length > 0;
+      if (!isOwner) throw new Error('You are not the owner of the transformation.');
 
       ///////////////////////////
       // Delete transformation //
@@ -24,7 +25,6 @@ const removeTransformation = (sender, transformationId) => {
       return reject(err);
     }
   });
-
-}
+};
 
 module.exports = removeTransformation;

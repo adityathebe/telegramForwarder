@@ -75,7 +75,7 @@ const knex = require('knex')({
       tableBuilder.integer('rank').notNullable();
 
       // Foreign Key
-      tableBuilder.foreign('redirection_id').references('id').inTable('transformations').onDelete('cascade');
+      tableBuilder.foreign('redirection_id').references('id').inTable('redirections').onDelete('cascade');
     });
     console.log('transformations table created');
   }
