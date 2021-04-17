@@ -1,1 +1,1 @@
--- Use this file run sql queries on database intialization
+-- Use this file to run sql queries on database intialization
