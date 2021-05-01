@@ -14,9 +14,9 @@
   "author": "Aditya Thebe <contact@adityathebe.com> (https://www.adityathebe.com)",
   "license": "ISC",
   "dependencies": {
-    "knex": "^0.20.9",
+    "knex": "^0.20.15",
     "node-telegram-bot-api": "^0.40.0",
-    "pg": "^8.3.2",
+    "pg": "^8.6.0",
     "pino": "^6.5.1",
     "request": "^2.88.2",
     "uuid": "^8.3.0"

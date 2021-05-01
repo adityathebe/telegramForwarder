@@ -15,16 +15,12 @@ class Database {
   }
 
   saveUser(chatId, username, refCode) {
-    return knex.raw(`INSERT INTO users (chat_id, username, ref_code) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, [
-      chatId,
-      username,
-      refCode,
-    ]);
+    return knex('users').insert({ chat_id: chatId, username: username, ref_code: refCode });
   }
 
   changeUserQuota(chatId, change = 1) {
-    const sql = `UPDATE users SET quota = quota + ${change} WHERE chat_id = ?`;
-    return knex.raw(sql, [chatId]);
+    const sql = `UPDATE users SET quota = quota + ? WHERE chat_id = ?`;
+    return knex.raw(sql, [change, chatId]);
   }
 
   getUserQuota(chatId) {

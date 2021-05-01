@@ -277,7 +277,6 @@ commandHandler.on('/transformremove', async (data, msgEvent) => {
 //       bot.send_message(sender, reply).catch(err => console.log(err));
 //     }
 
-
 if (require.main === module) {
   bot.on('message', msg => logger.info(msg));
   bot.on('polling_error', err => logger.error(err));

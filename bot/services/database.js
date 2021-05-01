@@ -16,7 +16,7 @@ const knex = require('knex')({
   if (!hasUserTable) {
     await knex.schema.createTable('users', tableBuilder => {
       tableBuilder.string('chat_id').primary();
-      tableBuilder.string('username').unique();
+      tableBuilder.string('username').nullable().unique();
       tableBuilder.string('ref_code').notNullable().unique();
       tableBuilder.string('ref_by');
       tableBuilder.boolean('premium').defaultTo(true);
